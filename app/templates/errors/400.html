@@ -1,0 +1,9 @@
+{% extends 'base.html' %}
+
+{% block title %}错误的请求{% endblock %}
+
+{% block content %}
+    <div class="row justify-content-md-center">
+        <div class="col"><h1>{{ description|default('错误的请求！') }}</h1></div>
+    </div>
+{% endblock %}
