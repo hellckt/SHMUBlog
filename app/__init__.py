@@ -5,6 +5,7 @@ from logging.handlers import RotatingFileHandler
 
 from flask import Flask, request
 
+from app.commands import register_commands
 from app.extensions import db, bootstrap, login_manager, csrf, ckeditor
 from config import config
 
@@ -28,6 +29,9 @@ def create_app(config_name=None):
 
     # 注册蓝本(blueprint)
     register_blueprints(app)
+
+    # 注册项目自定义命令
+    register_commands(app)
 
     # 注册shell上下文处理函数
     register_shell_context(app)
@@ -74,6 +78,9 @@ def register_blueprints(app):
     # 主体模块
     from .main import bp as main_bp
     app.register_blueprint(main_bp)
+
+    from .auth import bp as auth_bp
+    app.register_blueprint(auth_bp)
 
     # 错误模块
     from .errors import bp as errors_bp
