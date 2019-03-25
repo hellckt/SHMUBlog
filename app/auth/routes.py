@@ -42,7 +42,7 @@ def register():
         username = form.username.data
         password = form.password.data
         user = User(name=name, email=email, username=username)
-        user.set_password(password)
+        user.password = password
         db.session.add(user)
         db.session.commit()
         flash('注册成功，请登陆。', 'info')
@@ -53,7 +53,6 @@ def register():
 @bp.route('/logout', methods=['GET'])
 @login_required
 def logout():
-    print(1)
     logout_user()
     flash('注销成功。', 'info')
     return redirect(url_for('main.index'))
