@@ -3,8 +3,15 @@
 {% block title %}首页{% endblock %}
 
 {% block content %}
-    <div class="jumbotron">
-        <h1>你好，欢迎来到 SHMUBlog !</h1>
-        <p>虽然现在这里什么都没有。。。</p>
-    </div>
+    {% if current_user.is_authenticated %}
+        <div class="jumbotron">
+            <h1>你好，欢迎登陆!</h1>
+            <p>虽然现在还是这里什么都没有。。。</p>
+        </div>
+    {% else %}
+        <div class="jumbotron">
+            <h1>你好，欢迎来到 SHMUBlog !</h1>
+            <p>虽然现在这里什么都没有。。。</p>
+        </div>
+    {% endif %}
 {% endblock %}
