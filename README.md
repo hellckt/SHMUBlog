@@ -12,6 +12,10 @@
 
 推荐使用 [Pycharm](https://www.jetbrains.com/pycharm/) 作为编辑器，并设置好代码风格。
 
+## 数据库总体设计
+
+![数据库总体设计图](docs/数据库总体设计.png)
+
 ## 项目文件结构说明
     .
     ├── app                 # 项目主体代码
@@ -21,14 +25,18 @@
     │   ├── static          # 静态文件相关（js、css、图标等）
     │   ├── templates       # 前端模版文件
     │   ├── __init__.py     # 初始化 Flask
-    │   └── extensions.py   # Flask 相关拓展库
+    │   ├── commandas.py    # 自定义脚本命令
+    │   ├── decorators.py   # 装饰器方法
+    │   ├── extensions.py   # Flask 相关拓展库
+    │   ├── models.py       # 数据库相关表单
+    │   └── utils.py        # 项目中使用到的工具方法
     ├── docs                # 项目文档
     ├── tests               # 测试代码
     ├── .gitignore          # git 上传忽略配置文件(️如无需要，请勿删除里面的内容)
     ├── config.py           # 项目配置文件
     ├── README.md           # Github 项目描述文件
     ├── requirement.txt     # 项目依赖库
-    └── shmublog.py         # 项目运行入口
+    └── shmublog.py         # 项目实例&运行入口
 
 ## 项目开发配置流程
 ### 环境依赖：
@@ -56,6 +64,7 @@ git branch -b {分支的名字} develop
 
 1. 千万不要直接 push 到 master 或 develop 分支！
 2. 功能模块开发完毕后提出 merge 请求到 develop 即可。
+3. 分支合并后暂时不删除，等集成测试通过后再删。
 
 
 ### 安装虚拟环境并进入虚拟环境(推荐)
