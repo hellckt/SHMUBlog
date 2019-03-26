@@ -38,24 +38,24 @@ class Role(db.Model):
         角色说明:
             Guest           未注册用户（没有任何权限）
             Blocked         被封禁的用户（没有任何权限）
-            Locked          被锁定的用户
             User            普通用户
             Administrator   管理员
 
 
         权限说明:
             FOLLOW          关注权限
+            UNFOLLOW        取消关注权限
             COLLECT         收藏权限
             PUBLISH         博文发表权限
             COMMENT         评论权限
-            UPLOAD          上传权限
+            DELETE_ACCOUNT  删除账户权限
             ADMINISTER      管理员权限
         """
         roles_permissions_map = {
-            'Locked': ['FOLLOW', 'COLLECT'],
-            'User': ['FOLLOW', 'COLLECT', 'COMMENT', 'UPLOAD', 'PUBLISH'],
-            'Administrator': ['FOLLOW', 'COLLECT', 'COMMENT', 'UPLOAD',
-                              'PUBLISH', 'ADMINISTER']
+            'User': ['FOLLOW', 'UNFOLLOW', 'COLLECT', 'COMMENT', 'PUBLISH',
+                     'DELETE_ACCOUNT'],
+            'Administrator': ['FOLLOW', 'UNFOLLOW', 'COLLECT', 'COMMENT',
+                              'PUBLISH', 'DELETE_ACCOUNT', 'ADMINISTER']
         }
 
         for role_name in roles_permissions_map:
@@ -113,6 +113,7 @@ class User(db.Model, UserMixin):
     name = db.Column(db.String(30))
     member_since = db.Column(db.DateTime, default=datetime.utcnow)
     bio = db.Column(db.String(120))
+    last_seen = db.Column(db.DateTime, default=datetime.utcnow)
 
     active = db.Column(db.Boolean, default=True)
 
@@ -140,7 +141,8 @@ class User(db.Model, UserMixin):
     def __init__(self, **kwargs):
         """初始化用户"""
         super(User, self).__init__(**kwargs)
-        self.set_role()
+        self.set_role()  # 初始化用户角色
+        self.follow(self)  # 让用户关注自己
 
     @property
     def is_admin(self):
@@ -190,6 +192,32 @@ class User(db.Model, UserMixin):
         """解禁用户"""
         self.active = True
         db.session.commit()
+
+    def is_following(self, user):
+        """是否关注了 user"""
+        if user.id is None:
+            return False
+        return self.following.filter_by(
+            followed_id=user.id).first() is not None
+
+    def is_followed_by(self, user):
+        """是否被 user 关注"""
+        return self.followers.filter_by(
+            follower_id=user.id).first() is not None
+
+    def follow(self, user):
+        """关注 user"""
+        if not self.is_following(user):
+            follow = Follow(follower=self, followed=user)
+            db.session.add(follow)
+            db.session.commit()
+
+    def unfollow(self, user):
+        """取消关注 user"""
+        follow = self.following.filter_by(followed_id=user.id).first()
+        if follow:
+            db.session.delete(follow)
+            db.session.commit()
 
 
 class Category(db.Model):

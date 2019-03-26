@@ -30,14 +30,14 @@ class BaseTestCase(unittest.TestCase):
         db.create_all()
         Role.init_role()
 
-        admin_user = User(email='hellckt@126.com', name='Admin',
+        admin_user = User(email='hellckt@126.com', name='管理员',
                           username='admin')
         admin_user.password = '123'
-        normal_user = User(email='normal@126.com', name='Normal User',
+        normal_user = User(email='normal@126.com', name='普通用户',
                            username='normal')
         normal_user.password = '123'
 
-        blocked_user = User(email='blocked@126.com', name='Blocked User',
+        blocked_user = User(email='blocked@126.com', name='被封禁的用户',
                             username='blocked')
         blocked_user.password = '123'
         blocked_user.block()
