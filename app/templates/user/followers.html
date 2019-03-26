@@ -1,0 +1,29 @@
+{% extends 'base.html' %}
+{% from 'bootstrap/pagination.html' import render_pagination %}
+{% from 'macros.html' import user_card with context %}
+
+{% block title %}{{ user.name }} 的关注者{% endblock %}
+
+{% block content %}
+    <div class="row justify-content-md-center">
+        {% include 'user/_sidebar.html' %}
+        <div class="col-md-8">
+            {% if follows|length != 1 %}
+                {% for follow in follows %}
+                    {% if follow.follower != user %}
+                        {{ user_card(user=follow.follower) }}
+                    {% endif %}
+                {% endfor %}
+            {% else %}
+                <div class="text-center">
+                    <h3>没有人关注他。</h3>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+    {% if follows|length != 1 %}
+        <div class="row justify-content-md-center mt-5">
+            {{ render_pagination(pagination) }}
+        </div>
+    {% endif %}
+{% endblock %}

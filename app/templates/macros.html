@@ -1,0 +1,76 @@
+{% macro user_card(user) %}
+    <div class="card text-center">
+        {# TODO: 考虑头像功能 #}
+        <a href="{{ url_for('user.index', username=user.username) }}">
+            <img class="rounded bg-dark card-img-top"
+                 src="https://www.shmtu.edu.cn/sites/default/files/smulogo.png">
+        </a>
+        <div class="card-body">
+            <h5>
+                <a href="{{ url_for('user.index', username=user.username) }}">
+                    {{ user.name }}
+                </a>
+            </h5>
+            <h6 class="card-subtitle mb-2 text-muted">{{ user.username }}</h6>
+            {% if user.bio %}<p class="card-text">{{ user.bio }}</p>{% endif %}
+            {{ follow_area(user) }}
+            <p class="card-text">
+                最后活跃时间：{{ moment(user.last_seen).fromNow() }}</p>
+        </div>
+    </div>
+{% endmacro %}
+
+{# 关注区域 #}
+{% macro follow_area(user) %}
+    {% if current_user.is_authenticated %}
+        {% if user != current_user %}
+            {% if current_user.is_following(user) %}
+                <form class="inline" method="post"
+                      action="{{ url_for('user.unfollow', username=user.username, next=request.full_path) }}">
+                    <input type="hidden" name="csrf_token"
+                           value="{{ csrf_token() }}">
+                    <button type="submit" class="btn btn-dark btn-sm">
+                        取消关注
+                    </button>
+                    {% if current_user.is_followed_by(user) %}
+                        <p class="badge badge-light">互关</p>
+                    {% endif %}
+                </form>
+            {% else %}
+                <form class="inline" method="post"
+                      action="{{ url_for('user.follow', username=user.username, next=request.full_path) }}">
+                    <input type="hidden" name="csrf_token"
+                           value="{{ csrf_token() }}">
+                    <button type="submit" class="btn btn-primary btn-sm">
+                        关注
+                    </button>
+                    {% if current_user.is_followed_by(user) %}
+                        <p class="badge badge-light">关注了你</p>
+                    {% endif %}
+                </form>
+            {% endif %}
+        {% endif %}
+    {% else %}
+        <form class="inline" method="post"
+              action="{{ url_for('user.follow', username=user.username) }}">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <button type="submit" class="btn btn-primary btn-sm">Follow
+            </button>
+        </form>
+    {% endif %}
+
+    <a class="btn btn-link"
+       href="{{ url_for('user.show_following', username=user.username) }}">
+        关注
+        <span class="badge badge-dark">
+            {{ user.following.count() - 1 }}
+        </span>
+    </a>
+    <a class="btn btn-link"
+       href="{{ url_for('user.show_followers', username=user.username) }}">
+        粉丝
+        <span class="badge badge-dark">
+            {{ user.followers.count() - 1 }}
+        </span>
+    </a>
+{% endmacro %}

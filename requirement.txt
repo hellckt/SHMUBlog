@@ -5,6 +5,7 @@ Flask-WTF==0.14.2           # 表单库
 Flask-CKEditor==0.4.3       # 富文本编辑器
 Flask-Login==0.4.1          # 用户登陆相关
 Bootstrap-Flask==1.0.10     # Bootstrap 前端封装库
+Flask-Moment==0.7.0         # timestamp 格式化库
 
 python-dotenv==0.10.1       # 读取 .env .flaskenv 环境配置文件
 

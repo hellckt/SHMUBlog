@@ -48,6 +48,14 @@
                             <div class="dropdown-menu dropdown-menu-right"
                                  role="menu">
                                 <a class="dropdown-item"
+                                   href="{{ url_for('user.index', username=current_user.username) }}">
+                                    我的主页
+                                </a>
+                                <a class="dropdown-item"
+                                   href="{{ url_for('user.edit_profile') }}">
+                                    个人设置
+                                </a>
+                                <a class="dropdown-item"
                                    href="{{ url_for('auth.logout') }}">
                                     注销
                                 </a>
@@ -91,8 +99,8 @@
             src="{{ url_for('static', filename='js/popper.min.js') }}"></script>
     <script type="text/javascript"
             src="{{ url_for('static', filename='js/bootstrap.min.js') }}"></script>
-    <script type="text/javascript"
-            src="{{ url_for('static', filename='js/moment-with-locales.js') }}"></script>
+    {{ moment.include_moment(local_js=url_for('static', filename='js/moment-with-locales.js')) }}
+    {{ moment.lang("zh-cn") }}
     <script type="text/javascript"
             src="{{ url_for('static', filename='js/script.js') }}"></script>
 {% endblock %}

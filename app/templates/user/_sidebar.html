@@ -1,0 +1,6 @@
+{% from 'bootstrap/nav.html' import render_nav_item %}
+{% from 'macros.html' import user_card with context %}
+
+<div class="col-md-3">
+    {{ user_card(user) }}
+</div>
