@@ -12,16 +12,50 @@
                 </a>
             </h5>
             <h6 class="card-subtitle mb-2 text-muted">{{ user.username }}</h6>
-            {% if user.bio %}<p class="card-text">{{ user.bio }}</p>{% endif %}
+            <hr>
+            {% if user.bio %}
+                <p class="card-text">{{ user.bio }}</p>
+                <hr>
+            {% endif %}
+            <a class="btn btn-link"
+               href="{{ url_for('user.index', username=user.username) }}">
+                文章
+                <span class="badge badge-dark badge-pill">{{ user.posts|length }}</span>
+            </a>
+            {% if current_user.public_collections or current_user == user %}
+                <a class="btn btn-link"
+                   href="{{ url_for('user.show_collections', username=user.username) }}">
+                    收藏
+                    <span class="badge badge-dark badge-pill">{{ user.collections|length }}</span>
+                </a>
+            {% endif %}
+            <hr>
             {{ follow_area(user) }}
-            <p class="card-text">
-                最后活跃时间：{{ moment(user.last_seen).fromNow() }}</p>
+        </div>
+        <div class="card-footer text-muted">
+            最后活跃时间：{{ moment(user.last_seen).fromNow() }}
         </div>
     </div>
 {% endmacro %}
 
 {# 关注区域 #}
 {% macro follow_area(user) %}
+
+    <a class="btn btn-link"
+       href="{{ url_for('user.show_following', username=user.username) }}">
+        关注
+        <span class="badge badge-dark badge-pill">
+            {{ user.following.count() - 1 }}
+        </span>
+    </a>
+    <a class="btn btn-link"
+       href="{{ url_for('user.show_followers', username=user.username) }}">
+        粉丝
+        <span class="badge badge-dark badge-pill">
+            {{ user.followers.count() - 1 }}
+        </span>
+    </a>
+
     {% if current_user.is_authenticated %}
         {% if user != current_user %}
             {% if current_user.is_following(user) %}
@@ -45,7 +79,7 @@
                         关注
                     </button>
                     {% if current_user.is_followed_by(user) %}
-                        <p class="badge badge-light">关注了你</p>
+                        <p class="badge badge-light">他已关注了你</p>
                     {% endif %}
                 </form>
             {% endif %}
@@ -58,19 +92,40 @@
             </button>
         </form>
     {% endif %}
+{% endmacro %}
 
-    <a class="btn btn-link"
-       href="{{ url_for('user.show_following', username=user.username) }}">
-        关注
-        <span class="badge badge-dark">
-            {{ user.following.count() - 1 }}
-        </span>
-    </a>
-    <a class="btn btn-link"
-       href="{{ url_for('user.show_followers', username=user.username) }}">
-        粉丝
-        <span class="badge badge-dark">
-            {{ user.followers.count() - 1 }}
-        </span>
-    </a>
+{% macro post_card(post) %}
+    <h3 class="text-primary">
+        <a href="{{ url_for('post.show_post', post_id=post.id) }}">
+            {{ post.title }}
+        </a>
+    </h3>
+    <p>
+        {{ post.body|striptags|truncate }}
+        <small>
+            <a href="{{ url_for('post.show_post', post_id=post.id) }}">
+                查看全文
+            </a>
+        </small>
+    </p>
+    <small>
+        评论:
+        <a href="{{ url_for('post.show_post', post_id=post.id) +'#comments' }}">
+            {{ post.comments|length }}
+        </a>
+        &nbsp;&nbsp;
+        类别:
+        {% if post.categories %}
+            {% for category in post.categories %}
+                <a href="{{ url_for('user.index', username=user.username, category_id=category.id) }}">
+                    {{ category.name }}
+                </a>
+            {% endfor %}
+        {% else %}
+            <a>未分类</a>
+        {% endif %}
+        <span class="float-right">
+                发布于：{{ moment(post.timestamp).format('LLL') }}
+            </span>
+    </small>
 {% endmacro %}

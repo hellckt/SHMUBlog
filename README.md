@@ -90,11 +90,20 @@ FLASK_ENV=development
 FLASK_DEBUG=1
 ```
 
+### 初始化
+```commandline
+flask initdb    // 初始化数据库与表单
+flask init      // 初始化用户角色与权限
+flask fake      // 生成测试数据
+```
+
 ### 运行
 ```commandline
-flask initdb
-flask init
 flask run
+```
+或
+```commandline
+flask run --reload  // 自动重载资源, 开发时使用
 ```
 
 ### 运行单元测试（每次开发完毕都要运行测试！）
@@ -115,7 +124,7 @@ PS. 之后我会考虑，移植到 Flask command 里。
 - [x] 用户模块P1功能的单元测试
 - [ ] 用户模块P2、P3功能
 - [ ] 用户模块P2、P3的单元测试
-- [ ] 博文模块
+- [x] 博文模块
 - [ ] 博文模块的单元测试
 - [ ] 管理员模块
 - [ ] 管理员模块的单元测试

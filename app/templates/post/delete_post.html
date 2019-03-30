@@ -1,11 +1,11 @@
-{% extends 'user/settings/base.html' %}
+{% extends 'user/management/base.html' %}
 {% from 'bootstrap/form.html' import render_form %}
 
-{% block title %}删除账户{% endblock %}
+{% block title %}删除博文{% endblock %}
 
-{% block setting_content %}
+{% block management_content %}
     <div class="card w-100 bg-light border-danger">
-        <h3 class="card-header">删除账户
+        <h3 class="card-header">删除博文
             <span class="badge-danger badge badge-pill">警告：一旦删除将无法恢复！</span>
         </h3>
         <div class="card-body">

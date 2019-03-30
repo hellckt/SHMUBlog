@@ -3,15 +3,14 @@
 {% block title %}首页{% endblock %}
 
 {% block content %}
-    {% if current_user.is_authenticated %}
-        <div class="jumbotron">
-            <h1>你好，欢迎登陆!</h1>
-            <p>虽然现在还是这里什么都没有。。。</p>
+    <div class="row">
+        <div class="col-md-9">
+            热门博文列表
         </div>
-    {% else %}
-        <div class="jumbotron">
-            <h1>你好，欢迎来到 SHMUBlog !</h1>
-            <p>虽然现在这里什么都没有。。。</p>
+        <div class="col-md-3">
+            <div class="row">
+                热门类型
+            </div>
         </div>
-    {% endif %}
+    </div>
 {% endblock %}

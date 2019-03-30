@@ -1,26 +1,52 @@
-{% extends 'base.html' %}
+{% extends 'user/base.html' %}
 {% from 'bootstrap/pagination.html' import render_pagination %}
-{% from 'macros.html' import user_card with context %}
+{% from 'macros.html' import follow_area with context %}
 
 {% block title %}{{ user.name }} 关注的人{% endblock %}
 
-{% block content %}
-
-    <div class="row justify-content-md-center">
-        {% include 'user/_sidebar.html' %}
-        <div class="col-md-8">
-            {% if follows|length != 1 %}
-                {% for follow in follows %}
-                    {% if follow.followed != user %}
-                        {{ user_card(user=follow.followed) }}
-                    {% endif %}
-                {% endfor %}
-            {% else %}
-                <div class="tip text-center">
-                    <h3>这个B一个人都没关注。</h3>
-                </div>
-            {% endif %}
-        </div>
+{% block right_content %}
+    <h3>{{ user.name }} 的关注列表</h3>
+    <hr>
+    <div class="row">
+        {% if follows|length != 1 %}
+            {% for follow in follows %}
+                {% if follow.followed != user %}
+                    <div class="col-md-6">
+                        <div class="card mb-3">
+                            <div class="row no-gutters">
+                                <div class="col-md-4">
+                                    <img src="https://www.shmtu.edu.cn/sites/default/files/smulogo.png"
+                                         class="rounded-circle bg-dark card-img">
+                                </div>
+                                <div class="col-md-8">
+                                    <div class="card-body">
+                                        <h5 class="card-title">
+                                            <a href="{{ url_for('user.index', username=follow.followed.username) }}">
+                                                {{ follow.followed.name }}
+                                            </a>
+                                        </h5>
+                                        <p class="card-text">{{ follow.followed.bio }}</p>
+                                        <p class="card-text">
+                                            <small class="text-muted">
+                                                最后活跃时间：{{ moment(follow.followed.last_seen).fromNow() }}
+                                            </small>
+                                        </p>
+                                        <hr>
+                                        <div class="text-center">
+                                            {{ follow_area(follow.followed) }}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                {% endif %}
+            {% endfor %}
+        {% else %}
+            <div class="tip text-center">
+                <h3>这个B一个人都没关注。</h3>
+            </div>
+        {% endif %}
     </div>
     {% if follows|length != 1 %}
         <div class="row justify-content-md-center mt-5">

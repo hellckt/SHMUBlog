@@ -48,14 +48,17 @@ class Role(db.Model):
             COLLECT         收藏权限
             PUBLISH         博文发表权限
             COMMENT         评论权限
+            DELETE_POST     删除博文权限
+            DELETE_COMMENT  删除评论权限
             DELETE_ACCOUNT  删除账户权限
             ADMINISTER      管理员权限
         """
         roles_permissions_map = {
             'User': ['FOLLOW', 'UNFOLLOW', 'COLLECT', 'COMMENT', 'PUBLISH',
-                     'DELETE_ACCOUNT'],
+                     'DELETE_POST', 'DELETE_COMMENT', 'DELETE_ACCOUNT'],
             'Administrator': ['FOLLOW', 'UNFOLLOW', 'COLLECT', 'COMMENT',
-                              'PUBLISH', 'DELETE_ACCOUNT', 'ADMINISTER']
+                              'PUBLISH', 'DELETE_POST', 'DELETE_COMMENT',
+                              'DELETE_ACCOUNT','ADMINISTER']
         }
 
         for role_name in roles_permissions_map:
@@ -219,21 +222,41 @@ class User(db.Model, UserMixin):
             db.session.delete(follow)
             db.session.commit()
 
+    def collect(self, post):
+        """收藏博文"""
+        if not self.is_collecting(post):
+            collect = Collect(collector=self, collected=post)
+            db.session.add(collect)
+            db.session.commit()
+
+    def uncollect(self, post):
+        """取消收藏博文"""
+        collect = Collect.query.with_parent(self).filter_by(
+            collected_id=post.id).first()
+        if collect:
+            db.session.delete(collect)
+            db.session.commit()
+
+    def is_collecting(self, post):
+        """是否收藏了 post"""
+        return Collect.query.with_parent(self).filter_by(
+            collected_id=post.id).first() is not None
+
+
+categorizing = db.Table('categorizing',
+                        db.Column('post_id', db.Integer,
+                                  db.ForeignKey('post.id')),
+                        db.Column('category_id', db.Integer,
+                                  db.ForeignKey('category.id')))
+
 
 class Category(db.Model):
     """博文类型表"""
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(30), unique=True)
 
-    posts = db.relationship('Post', back_populates='category')
-
-    def delete(self):
-        default_category = Category.query.get(1)
-        posts = self.posts[:]
-        for post in posts:
-            post.category = default_category
-        db.session.delete(self)
-        db.session.commit()
+    posts = db.relationship('Post', secondary=categorizing,
+                            back_populates='categories')
 
 
 class Post(db.Model):
@@ -245,10 +268,10 @@ class Post(db.Model):
     can_comment = db.Column(db.Boolean, default=True)
 
     author_id = db.Column(db.Integer, db.ForeignKey('user.id'))
-    category_id = db.Column(db.Integer, db.ForeignKey('category.id'))
 
     author = db.relationship('User', back_populates='posts')
-    category = db.relationship('Category', back_populates='posts')
+    categories = db.relationship('Category', secondary=categorizing,
+                                 back_populates='posts')
     comments = db.relationship('Comment', back_populates='post',
                                cascade='all, delete-orphan')
     collectors = db.relationship('Collect', back_populates='collected',
