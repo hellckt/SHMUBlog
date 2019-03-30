@@ -1,3 +1,4 @@
+# Common
 Flask==1.0.2                # 基础框架
 
 Flask-SQLAlchemy==2.3.2     # 数据库工具
@@ -9,5 +10,6 @@ Flask-Moment==0.7.0         # timestamp 格式化库
 
 python-dotenv==0.10.1       # 读取 .env .flaskenv 环境配置文件
 
-# development
+# Development
 watchdog==0.9.0             # 替换 Werkzeug 默认的 stat 重载器
+faker==1.0.4                # 用于测试数据生成

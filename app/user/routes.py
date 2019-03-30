@@ -3,10 +3,11 @@ from flask import request, current_app, render_template, flash, redirect, \
     url_for
 from flask_login import login_required, current_user, fresh_login_required, \
     logout_user
+from sqlalchemy import func
 
 from app import db
 from app.decorators import permission_required
-from app.models import User, Post
+from app.models import User, Post, Category, categorizing, Collect, Comment
 from app.user import bp
 from app.user.forms import EditProfileForm, ChangePasswordForm, \
     PrivacySettingForm, DeleteAccountForm
@@ -17,12 +18,27 @@ from app.utils import redirect_back
 def index(username):
     user = User.query.filter_by(username=username).first_or_404()
     page = request.args.get('page', 1, type=int)
+    category_id = request.args.get('category_id', None, type=int)
     per_page = current_app.config['SHMUBLOG_POST_PER_PAGE']
-    pagination = Post.query.with_parent(user).order_by(
-        Post.timestamp.desc()).paginate(page, per_page)
+    if category_id:
+        pagination = Post.query.with_parent(user) \
+            .filter(Post.categories.any(id=category_id)) \
+            .order_by(Post.timestamp.desc()).paginate(page, per_page)
+    else:
+        pagination = Post.query.with_parent(user).order_by(
+            Post.timestamp.desc()).paginate(page, per_page)
     posts = pagination.items
+
+    # TODO: 考虑优化查询
+    count_categories = db.session.query(Category.id, Category.name,
+                                        func.count(Category.id).label('total')) \
+        .join(categorizing).filter(categorizing.c.category_id == Category.id) \
+        .join(Post).filter(Post.id == categorizing.c.post_id,
+                           Post.author_id == user.id) \
+        .group_by(Category.id) \
+        .order_by(func.count(Category.id).desc()).all()
     return render_template('user/index.html', user=user, pagination=pagination,
-                           posts=posts)
+                           posts=posts, categories=count_categories)
 
 
 @bp.route('/follow/<username>', methods=['POST'])
@@ -73,6 +89,18 @@ def show_following(username):
     follows = pagination.items
     return render_template('user/following.html', user=user,
                            pagination=pagination, follows=follows)
+
+
+@bp.route('/<username>/collections')
+def show_collections(username):
+    user = User.query.filter_by(username=username).first_or_404()
+    page = request.args.get('page', 1, type=int)
+    per_page = current_app.config['SHMUBLOG_POST_PER_PAGE']
+    pagination = Collect.query.with_parent(user).order_by(
+        Collect.timestamp.desc()).paginate(page, per_page)
+    collects = pagination.items
+    return render_template('user/collections.html', user=user,
+                           pagination=pagination, collects=collects)
 
 
 @bp.route('/settings/profile', methods=['GET', 'POST'])
@@ -128,6 +156,32 @@ def delete_account():
     if form.validate_on_submit():
         db.session.delete(current_user._get_current_object())
         db.session.commit()
+        logout_user()
         flash('好的，你自由了。', 'success')
         return redirect(url_for('main.index'))
     return render_template('user/settings/delete_account.html', form=form)
+
+
+@bp.route('/management/posts')
+@login_required
+def manage_posts():
+    page = request.args.get('page', 1, type=int)
+    per_page = current_app.config['SHMUBLOG_POST_PER_PAGE']
+    pagination = Post.query.with_parent(current_user) \
+        .order_by(Post.timestamp.desc()).paginate(page, per_page)
+    posts = pagination.items
+    return render_template('user/management/manage_posts.html',
+                           pagination=pagination, posts=posts)
+
+
+@bp.route('/management/comments')
+@login_required
+def manage_comments():
+    page = request.args.get('page', 1, type=int)
+    per_page = current_app.config['SHMUBLOG_COMMENT_PER_PAGE']
+    pagination = Comment.query \
+        .filter(Comment.post_id.in_([post.id for post in current_user.posts])) \
+        .order_by(Comment.timestamp.desc()).paginate(page, per_page)
+    comments = pagination.items
+    return render_template('user/management/manage_comments.html',
+                           pagination=pagination, comments=comments)

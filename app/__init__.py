@@ -86,6 +86,9 @@ def register_blueprints(app):
     from .user import bp as user_bp
     app.register_blueprint(user_bp, url_prefix='/user')
 
+    from .post import bp as post_bp
+    app.register_blueprint(post_bp, url_prefix='/post')
+
     # 错误模块
     from .errors import bp as errors_bp
     app.register_blueprint(errors_bp)

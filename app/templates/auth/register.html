@@ -4,26 +4,24 @@
 {% block title %}注册{% endblock %}
 
 {% block content %}
-    <div class="jumbotron">
-        <div class="row">
-            <div class="col-md-8">
-                {# TODO: 添加图片 #}
-            </div>
-            <div class="col-md-4">
-                <div class="card mb-3 w-100 bg-light">
-                    <div class="card-header">
-                        <h4>欢迎加入 SHMUBlog ！</h4>
-                    </div>
-                    <div class="card-body">
-                        {{ render_form(form) }}
-                        <hr>
-                        <small>
-                            已经注册过了？
-                            <a href="{{ url_for('auth.login') }}">
-                                点击这里登陆
-                            </a>
-                        </small>
-                    </div>
+    <div class="row">
+        <div class="col-md-8">
+            内容待添加
+        </div>
+        <div class="col-md-4">
+            <div class="card mb-3 w-100 bg-light">
+                <div class="card-header">
+                    <h4>欢迎加入 SHMUBlog ！</h4>
+                </div>
+                <div class="card-body">
+                    {{ render_form(form) }}
+                    <hr>
+                    <small>
+                        已经注册过了？
+                        <a href="{{ url_for('auth.login') }}">
+                            点击这里登陆
+                        </a>
+                    </small>
                 </div>
             </div>
         </div>

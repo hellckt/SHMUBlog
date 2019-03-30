@@ -1,0 +1,12 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <div class="row">
+        <div class="col-md-3">
+            {% include 'user/_sidebar.html' %}
+        </div>
+        <div class="col-md-9">
+            {% block right_content %}没有内容。{% endblock %}
+        </div>
+    </div>
+{% endblock %}

@@ -5,6 +5,8 @@ from .base import BaseTestCase
 
 
 class UserTestCase(BaseTestCase):
+    """TODO: 完成用户相关的单元测试"""
+    
     def test_index_page(self):
         response = self.client.get(url_for('user.index', username='normal'))
         data = response.get_data(as_text=True)

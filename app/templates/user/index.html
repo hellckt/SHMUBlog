@@ -1,23 +1,10 @@
-{% extends 'base.html' %}
+{% extends 'user/base.html' %}
 {% from 'bootstrap/pagination.html' import render_pagination %}
 
 {% block title %}{{ user.name }}{% endblock %}
 
-{% block content %}
-    <div class="row justify-content-md-center">
-        {% include 'user/_sidebar.html' %}
-        <div class="col-md-8">
-            {% if posts %}
-                {% for post in posts %}
-                    {{ post }}
-                {% endfor %}
-            {% else %}
-                <div class="tip text-center">
-                    <h3>尚未发表过文章。</h3>
-                </div>
-            {% endif %}
-        </div>
-    </div>
+{% block right_content %}
+    {% include 'user/_posts.html' %}
     {% if posts %}
         <div class="page-footer">
             {{ render_pagination(pagination, align='center') }}

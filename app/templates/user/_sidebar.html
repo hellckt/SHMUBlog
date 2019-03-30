@@ -1,6 +1,25 @@
-{% from 'bootstrap/nav.html' import render_nav_item %}
 {% from 'macros.html' import user_card with context %}
 
-<div class="col-md-3">
-    {{ user_card(user) }}
+<div class="row pr-md-3 mb-md-3">
+    <div class="col-md-12">
+        {{ user_card(user) }}
+    </div>
+</div>
+<div class="row pr-md-3 flex-md-column">
+    <div class="col-md-12">
+        {% if categories %}
+            <div class="list-group">
+                <a class="list-group-item list-group-item-secondary">文章类别</a>
+                {% for category in categories %}
+                    <a class="list-group-item d-flex justify-content-between align-items-center"
+                       href="{{ url_for('user.index', username=user.username, category_id=category.id) }}">
+                        {{ category.name }}
+                        <span class="badge badge-dark badge-pill">
+                            {{ category.total }}
+                    </span>
+                    </a>
+                {% endfor %}
+            </div>
+        {% endif %}
+    </div>
 </div>

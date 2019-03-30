@@ -20,7 +20,7 @@
 </head>
 <body>
 {% block navbar %}
-    <nav class="navbar navbar-expand-lg navbar-dark fixed-top bg-dark">
+    <nav class="navbar navbar-expand-md navbar-dark bg-dark mb-3">
         <div class="container">
             <a class="navbar-brand" href="/">
                 {# TODO: 考虑制作网站图标 #}
@@ -37,6 +37,7 @@
                     {{ render_nav_item('main.index', '首页') }}
                 </div>
                 <div class="navbar-nav ml-auto">
+                    {{ render_nav_item('post.new_post', '写博文') }}
                     {% if current_user.is_authenticated %}
                         <div class="dropdown nav-item">
                             <a href="#" class="nav-link dropdown-toggle"
@@ -50,6 +51,14 @@
                                 <a class="dropdown-item"
                                    href="{{ url_for('user.index', username=current_user.username) }}">
                                     我的主页
+                                </a>
+                                <a class="dropdown-item"
+                                   href="{{ url_for('user.show_collections', username=current_user.username) }}">
+                                    我的收藏
+                                </a>
+                                <a class="dropdown-item"
+                                   href="{{ url_for('user.manage_posts') }}">
+                                    我的管理
                                 </a>
                                 <a class="dropdown-item"
                                    href="{{ url_for('user.edit_profile') }}">
@@ -74,7 +83,7 @@
     </nav>
 {% endblock %}
 
-<main class="container">
+<main class="container pb-md-5">
     {# Flash 消息 #}
     {% for message in get_flashed_messages(with_categories=True) %}
         <div class="alert alert-{{ message[0] }}">
@@ -87,7 +96,8 @@
     {% block content %}{% endblock %}
 
     {% block footer %}
-        <footer></footer>
+        <footer>
+        </footer>
     {% endblock %}
 </main>
 <div id="toast"></div>

@@ -18,3 +18,4 @@ def redirect_back(default='main.index', **kwargs):
         if is_safe_url(target):
             return redirect(target)
     return redirect(url_for(default, **kwargs))
+

@@ -7,8 +7,9 @@ basedir = os.path.abspath(os.path.dirname(__file__))
 class Config(object):
     SECRET_KEY = os.environ.get('SECRET_KEY') or 'SHMUBlog-secret-key'
     SHMUBLOG_ADMIN_EMAIL = os.environ.get('SHMUBLOG_ADMIN_EMAIL') or 'hellckt@126.com'
-    SHMUBLOG_POST_PER_PAGE = 20
-    SHMUBLOG_USER_PER_PAGE = 20
+    SHMUBLOG_USER_PER_PAGE = 10
+    SHMUBLOG_POST_PER_PAGE = 10
+    SHMUBLOG_COMMENT_PER_PAGE = 10
 
     # Flask-SQLAlchemy
     SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URL') or \
@@ -17,6 +18,7 @@ class Config(object):
 
     # Flask-CKEditor
     CKEDITOR_ENABLE_CSRF = True
+    CKEDITOR_SERVE_LOCAL = False
 
 
 class DevelopmentConfig(Config):

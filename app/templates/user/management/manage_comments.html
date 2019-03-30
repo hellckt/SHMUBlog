@@ -1,0 +1,47 @@
+{% extends 'user/management/base.html' %}
+{% from 'bootstrap/form.html' import render_form %}
+{% from 'bootstrap/pagination.html' import render_pagination %}
+
+{% block title %}管理评论{% endblock %}
+
+{% block management_content %}
+    {% if comments %}
+        <table class="table table-striped table-bordered">
+            <thead>
+            <tr>
+                <th>评论内容</th>
+                <th>用户</th>
+                <th>所在博文</th>
+                <th>日期</th>
+                <th>操作</th>
+            </tr>
+            </thead>
+            {% for comment in comments %}
+                <tr>
+                    <td>{{ comment.body }}</td>
+                    <td>
+                        <a href="{{ url_for('user.index', username=comment.author.username) }}">{{ comment.author.name }}</a>
+                    </td>
+                    <td>
+                        <a href="{{ url_for('post.show_post', post_id=comment.post.id) }}">{{ comment.post.title }}</a>
+                    </td>
+                    <td>{{ moment(comment.timestamp).format('LL') }}</td>
+                    <td>
+                        <form class="inline" method="post"
+                              action="{{ url_for('post.delete_comment', comment_id=comment.id, next=request.full_path) }}">
+                            <input type="hidden" name="csrf_token"
+                                   value="{{ csrf_token() }}"/>
+                            <button type="submit" class="btn btn-danger btn-sm"
+                                    onclick="return confirm('确认删除？');">
+                                删除
+                            </button>
+                        </form>
+                    </td>
+                </tr>
+            {% endfor %}
+        </table>
+        <div class="page-footer">{{ render_pagination(pagination, align='center') }}</div>
+    {% else %}
+        <div class="tip"><h5>没有评论。</h5></div>
+    {% endif %}
+{% endblock %}

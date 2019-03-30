@@ -1,0 +1,123 @@
+<div class="comments col-md-12" id="comments">
+    <h3>{{ post.comments|length }} 评论
+        <small>
+            <a href="{{ url_for('post.show_post', post_id=post.id, page=pagination.pages or 1) }}#comment-form">最新</a>
+        </small>
+        {% if current_user == post.author %}
+            <form class="inline float-right" method="post"
+                  action="{{ url_for('post.set_comment', post_id=post.id) }}">
+                <input type="hidden" name="csrf_token"
+                       value="{{ csrf_token() }}">
+                <button type="submit" class="btn btn-xs btn-link float-right">
+                    {% if post.can_comment %}禁止{% else %}允许{% endif %}评论
+                </button>
+            </form>
+        {% endif %}
+    </h3>
+    <hr>
+    <div class="row">
+        {% if comments %}
+            {% for comment in comments %}
+                <div class="col-md-12">
+                    <div class="card mb-3">
+                        <div class="row no-gutters">
+                            <div class="col-md-2">
+                                <a href="{{ url_for('user.index', username=comment.author.username) }}">
+                                    <img class="rounded-circle bg-dark card-img"
+                                         src="https://www.shmtu.edu.cn/sites/default/files/smulogo.png">
+                                </a>
+                            </div>
+                            <div class="col-md-10">
+                                <div class="card-body">
+                                    <h5 class="card-title">
+                                        <a href="{{ url_for('user.index', username=comment.author.username) }}">
+                                            {{ comment.author.name }}
+                                        </a>
+                                        <small class="text-muted">
+                                            发表于 {{ moment(comment.timestamp).fromNow(refresh=True) }}
+                                        </small>
+                                        {% if current_user.is_authenticated %}
+                                            {% if current_user != comment.author %}
+                                                <a class="btn float-md-right"
+                                                   href="{{ url_for('post.reply_comment', comment_id=comment.id) }}">
+                                                    回复
+                                                </a>
+                                            {% endif %}
+                                        {% endif %}
+                                    </h5>
+                                    <p class="card-text">
+                                        {% if comment.replied %}
+                                            <a href="{{ url_for('user.index', username=comment.replied.author.username) }}">
+                                                @{{ comment.replied.author.name }}
+                                            </a>:
+                                        {% endif %}
+                                        {{ comment.body }}
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+            <div class="page-footer">
+                {{ render_pagination(pagination) }}
+            </div>
+        {% else %}
+            <p class="tip">尚未有评论。</p>
+        {% endif %}
+    </div>
+
+    {# 评论表单 #}
+    <div class="row">
+        <div class="col-md-12">
+            {% if post.can_comment %}
+                {% if current_user.is_authenticated %}
+                    {% if current_user.can('COMMENT') %}
+                        <div class="card mb-3 border-0">
+                            <div class="row no-gutters">
+                                <div class="col-md-2">
+                                    <img class="rounded-circle bg-dark card-img"
+                                         src="https://www.shmtu.edu.cn/sites/default/files/smulogo.png">
+                                </div>
+                                <div class="col-md-10">
+                                    <div class="card-body">
+                                        <h5 class="card-title">
+                                            <a href="{{ url_for('user.index', username=current_user.username) }}">
+                                                {{ current_user.name }}
+                                            </a>
+                                        </h5>
+                                        {% if request.args.get('reply') %}
+                                            <div class="alert alert-dark">
+                                                @{{ request.args.get('author') }}:
+                                                <a class="float-right"
+                                                   href="{{ url_for('post.show_post', post_id=post.id) }}">取消</a>
+                                            </div>
+                                        {% endif %}
+                                        <div class="comment-form"
+                                             id="comment-form">
+                                            {{ render_form(comment_form, action=url_for('post.new_comment', post_id=post.id, page=pagination.pages or 1, reply=request.args.get('reply')), extra_classes="text-right") }}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    {% else %}
+                        <p class="tip">
+                            没有权限。
+                        </p>
+                    {% endif %}
+                {% else %}
+                    <p class="tip">
+                        <a href="{{ url_for('auth.login') }}">登陆</a>
+                        或
+                        <a href="{{ url_for('auth.register') }}">注册</a> 后才能评论。
+                    </p>
+                {% endif %}
+            {% else %}
+                <p class="tip">
+                    评论功能已被禁止。
+                </p>
+            {% endif %}
+        </div>
+    </div>
+</div>
