@@ -39,10 +39,27 @@
             <div class="collapse navbar-collapse" id="navbarCollapse">
                 <div class="navbar-nav mr-auto">
                     {{ render_nav_item('main.index', '首页') }}
+                    {{ render_nav_item('main.explore', '随机博文') }}
+                    {% if current_user.is_authenticated %}
+                        {{ render_nav_item('main.home', '我的首页', username=current_user.username) }}
+                    {% endif %}
                 </div>
                 <div class="navbar-nav ml-auto">
-                    {{ render_nav_item('post.new_post', '写博文') }}
+                    <form class="form-inline my-2 my-lg-0"
+                          action="{{ url_for('main.search') }}">
+                        <input type="text" name="q"
+                               class="form-control mr-sm-1"
+                               placeholder="博文、用户或博文类别"
+                               required>
+                        <button class="btn btn-secondary my-2 my-sm-0"
+                                type="submit">
+                            搜索
+                        </button>
+                    </form>
+                </div>
+                <div class="navbar-nav ml-auto">
                     {% if current_user.is_authenticated %}
+                        {{ render_nav_item('post.new_post', '写博文') }}
                         {% if current_user.is_admin %}
                             {{ render_nav_item('admin.index', '管理界面') }}
                         {% endif %}
@@ -103,7 +120,21 @@
     {% block content %}{% endblock %}
 
     {% block footer %}
-        <footer>
+        <footer class="page-footer pt-4 my-md-5 pt-md-4 border-top">
+            <p class="float-left">
+                <small>&copy;2019
+                    <a href="#">
+                        软件管理第一小组
+                    </a> -
+                    <a href="https://github.com/hellckt/SHMUBlog"
+                       title="项目代码">GitHub</a> -
+                    <a href="{{ url_for('main.index') }}"
+                       title="博客系统">SHMUBlog</a>
+                </small>
+            </p>
+            <p class="float-right text-muted">
+                记录你的点点滴滴。
+            </p>
         </footer>
     {% endblock %}
 </main>

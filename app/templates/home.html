@@ -2,10 +2,10 @@
 {% from 'bootstrap/pagination.html' import render_pagination %}
 {% from 'macros.html' import post_card with context %}
 
-{% block title %}{{ user.name }}{% endblock %}
+{% block title %}我的首页{% endblock %}
 
 {% block right_content %}
-    <h3>{{ user.name }} 的文章列表</h3>
+    <h3>我的首页</h3>
     <hr>
     {% if posts %}
         {% for post in posts %}
@@ -22,7 +22,6 @@
             {% endif %}
         </div>
     {% endif %}
-
     {% if posts %}
         <div class="page-footer">
             {{ render_pagination(pagination, align='center') }}

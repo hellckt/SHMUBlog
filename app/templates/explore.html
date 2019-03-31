@@ -1,0 +1,22 @@
+{% extends 'base.html' %}
+{% from 'macros.html' import post_card with context %}
+
+{% block title %}发现{% endblock %}
+
+{% block content %}
+    <div class="row">
+        <div class="col-md-12">
+            {% for post in posts %}
+                {{ post_card(post) }}
+                {% if not loop.last %}
+                    <hr>
+                {% endif %}
+            {% endfor %}
+        </div>
+    </div>
+    <div class="text-center">
+        <a class="btn btn-primary" href="{{ url_for('main.explore') }}">
+            再次随机
+        </a>
+    </div>
+{% endblock %}

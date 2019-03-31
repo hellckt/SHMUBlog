@@ -6,6 +6,7 @@ from flask_moment import Moment
 from flask_sqlalchemy import SQLAlchemy
 from flask_wtf import CSRFProtect
 from flask_avatars import Avatars
+from flask_whooshee import Whooshee
 
 bootstrap = Bootstrap()
 db = SQLAlchemy()
@@ -14,6 +15,7 @@ csrf = CSRFProtect()
 ckeditor = CKEditor()
 moment = Moment()
 avatars = Avatars()
+whooshee = Whooshee()
 
 
 # 配置 flask-login

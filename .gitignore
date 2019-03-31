@@ -28,3 +28,6 @@ logs/
 # upload files
 uploads/*
 uploads/avatars/*
+
+# Whooshee index dir
+whooshee/

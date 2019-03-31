@@ -128,38 +128,51 @@
     {% endif %}
 {% endmacro %}
 
-{% macro post_card(post) %}
-    <h3 class="text-primary">
+{% macro post_card(post, badge='', badge_color='danger') %}
+    <h4>
         <a href="{{ url_for('post.show_post', post_id=post.id) }}">
             {{ post.title }}
+            {% if badge %}
+                <small class="badge badge-pill badge-{{ badge_color }} text-white ml-md-2">
+                    {{ badge }}
+                </small>
+            {% endif %}
         </a>
-    </h3>
+    </h4>
     <p>
         {{ post.body|striptags|truncate }}
+        <a href="{{ url_for('post.show_post', post_id=post.id) }}">
+            查看全文
+        </a>
+    </p>
+    <p>
         <small>
-            <a href="{{ url_for('post.show_post', post_id=post.id) }}">
-                查看全文
+            <strong>作者:</strong>
+            <a href="{{ url_for('user.index', username=post.author.username) }}">
+                {{ post.author.name }}
             </a>
+            &nbsp;&nbsp;
+            <strong>评论：</strong>
+            <a href="{{ url_for('post.show_post', post_id=post.id) +'#comments' }}">
+                {{ post.comments|length }}
+            </a>
+            &nbsp;&nbsp;
+            <strong>类别:</strong>
+            {% if post.categories %}
+                {% for category in post.categories %}
+                    <a>
+                        {{ category.name }}
+                    </a>
+                {% endfor %}
+            {% else %}
+                <a>未分类</a>
+            {% endif %}
+            &nbsp;&nbsp;
+            <strong>阅读数：</strong> {{ post.viewed }}
+            &nbsp;&nbsp;
+            <strong>收藏数：</strong> {{ post.collectors | count }}
+            &nbsp;&nbsp;
+            <strong>发布于：</strong> {{ moment(post.timestamp).format('LLL') }}
         </small>
     </p>
-    <small>
-        评论:
-        <a href="{{ url_for('post.show_post', post_id=post.id) +'#comments' }}">
-            {{ post.comments|length }}
-        </a>
-        &nbsp;&nbsp;
-        类别:
-        {% if post.categories %}
-            {% for category in post.categories %}
-                <a href="{{ url_for('user.index', username=user.username, category_id=category.id) }}">
-                    {{ category.name }}
-                </a>
-            {% endfor %}
-        {% else %}
-            <a>未分类</a>
-        {% endif %}
-        <span class="float-right">
-                发布于：{{ moment(post.timestamp).format('LLL') }}
-            </span>
-    </small>
 {% endmacro %}

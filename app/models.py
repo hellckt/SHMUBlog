@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+import os
 from datetime import datetime
 
 from flask import current_app
@@ -6,7 +7,7 @@ from flask_avatars import Identicon
 from flask_login import UserMixin
 from werkzeug.security import generate_password_hash, check_password_hash
 
-from app.extensions import db
+from app.extensions import db, whooshee
 
 # 角色-权限关系表
 roles_permissions = db.Table('roles_permissions',
@@ -110,6 +111,7 @@ class Collect(db.Model):
                                 lazy='joined')
 
 
+@whooshee.register_model('username', 'name')
 class User(db.Model, UserMixin):
     """用户表"""
     id = db.Column(db.Integer, primary_key=True)
@@ -268,6 +270,7 @@ categorizing = db.Table('categorizing',
                                   db.ForeignKey('category.id')))
 
 
+@whooshee.register_model('name')
 class Category(db.Model):
     """博文类型表"""
     id = db.Column(db.Integer, primary_key=True)
@@ -277,6 +280,7 @@ class Category(db.Model):
                             back_populates='categories')
 
 
+@whooshee.register_model('title', 'body')
 class Post(db.Model):
     """博文表"""
     id = db.Column(db.Integer, primary_key=True)
@@ -327,3 +331,18 @@ class Notification(db.Model):
     receiver_id = db.Column(db.Integer, db.ForeignKey('user.id'))
 
     receiver = db.relationship('User', back_populates='notifications')
+
+
+@db.event.listens_for(User, 'after_delete', named=True)
+def delete_avatars(**kwargs):
+    """用户被删除后，同时删除生成的头像文件"""
+    target = kwargs['target']
+    for filename in [target.avatar_s, target.avatar_m, target.avatar_l,
+                     target.avatar_raw]:
+        # avatar_raw 可能为 None
+        if filename is not None:
+            path = os.path.join(current_app.config['AVATARS_SAVE_PATH'],
+                                filename)
+            # 文件名可能不是唯一的
+            if os.path.exists(path):
+                os.remove(path)
