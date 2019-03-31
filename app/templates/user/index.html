@@ -4,6 +4,8 @@
 {% block title %}{{ user.name }}{% endblock %}
 
 {% block right_content %}
+    <h3>{{ user.name }} 的文章列表</h3>
+    <hr>
     {% include 'user/_posts.html' %}
     {% if posts %}
         <div class="page-footer">

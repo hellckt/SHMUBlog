@@ -29,6 +29,7 @@
             {% else %}
                 <a>未分类</a>
             {% endif %}
+            阅读数： {{ post.viewed }}
             <span class="float-right">
                 发布于：{{ moment(post.timestamp).format('LLL') }}
             </span>

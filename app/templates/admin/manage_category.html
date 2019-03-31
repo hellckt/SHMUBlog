@@ -1,0 +1,60 @@
+{% extends 'admin/index.html' %}
+{% from 'bootstrap/pagination.html' import render_pagination %}
+
+{% block title %}管理博文类别{% endblock %}
+
+{% block content %}
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            {{ render_breadcrumb_item('admin.index', '管理员主页') }}
+            {{ render_breadcrumb_item('admin.manage_category', '管理博文类别') }}
+        </ol>
+    </nav>
+    <div class="mb-md-3">
+        <h1>博文类别
+            <small class="text-muted">{{ pagination.total }}</small>
+        </h1>
+    </div>
+    {% if categories %}
+        <table class="table table-striped">
+            <thead>
+            <tr>
+                <th>编号</th>
+                <th>类别名</th>
+                <th>相关博文数</th>
+                <th>操作</th>
+            </tr>
+            </thead>
+            {% for category in categories %}
+                <tr>
+                    <td>
+                        {{ category.id }}
+                    </td>
+                    <td>
+                        {{ category.name }}
+                    </td>
+                    <td>
+                        {{ category.total }}
+                    </td>
+                    <td>
+                        <form class="inline"
+                              action="{{ url_for('admin.delete_category', category_id=category.id) }}"
+                              method="post">
+                            <input type="hidden" name="csrf_token"
+                                   value="{{ csrf_token() }}">
+                            <input type="submit"
+                                   onclick="return confirm('确认删除？');"
+                                   class="btn btn-danger btn-sm"
+                                   value="删除">
+                        </form>
+                    </td>
+                </tr>
+            {% endfor %}
+        </table>
+        <div>
+            {{ render_pagination(pagination, align='center') }}
+        </div>
+    {% else %}
+        <div class="tip"><h5>没有博文类别。</h5></div>
+    {% endif %}
+{% endblock %}

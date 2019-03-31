@@ -68,8 +68,13 @@ def edit_post(post_id):
 
 
 @bp.route('/<int:post_id>/delete', methods=['GET', 'POST'])
+@login_required
 def delete_post(post_id):
     post = Post.query.get_or_404(post_id)
+
+    if current_user != post.author:
+        abort(403)
+
     form = DeletePostForm()
     if form.validate_on_submit():
         db.session.delete(post)
@@ -78,6 +83,16 @@ def delete_post(post_id):
         return redirect(url_for('user.manage_posts'))
     form.id.data = post.id
     return render_template('post/delete_post.html', form=form)
+
+
+@bp.route('/<int:post_id>/report', methods=['POST'])
+@login_required
+def report_post(post_id):
+    post = Post.query.get_or_404(post_id)
+    post.flag += 1
+    db.session.commit()
+    flash('举报成功。', 'success')
+    return redirect_back()
 
 
 @bp.route('/<int:post_id>', methods=['GET', 'POST'])
@@ -92,6 +107,11 @@ def show_post(post_id):
     comments = pagination.items
 
     comment_form = CommentForm()
+
+    # FIXME: 优化该逻辑
+    if current_user != user:
+        post.viewed += 1
+        db.session.commit()
 
     return render_template('post/post.html', post=post, pagination=pagination,
                            comment_form=comment_form, comments=comments,
@@ -152,10 +172,23 @@ def reply_comment(comment_id):
 @permission_required('DELETE_COMMENT')
 def delete_comment(comment_id):
     comment = Comment.query.get_or_404(comment_id)
+    if current_user != comment.author and current_user != comment.post.author:
+        abort(403)
+
     db.session.delete(comment)
     db.session.commit()
     flash('评论已删除。', 'success')
     return redirect(url_for('user.manage_comments'))
+
+
+@bp.route('/comment/<int:comment_id>/report', methods=['POST'])
+@login_required
+def report_comment(comment_id):
+    comment = Comment.query.get_or_404(comment_id)
+    comment.flag += 1
+    db.session.commit()
+    flash('举报成功。', 'success')
+    return redirect_back()
 
 
 @bp.route('/<int:post_id>/collect', methods=['POST'])
@@ -185,11 +218,18 @@ def uncollect(post_id):
     return redirect(url_for('.show_post', post_id=post_id))
 
 
-@bp.route('/category/<int:category_id>', methods=['POST'])
+@bp.route('/<int:post_id>/category/<int:category_id>', methods=['POST'])
 @login_required
-def delete_category(category_id):
+def delete_post_category(post_id, category_id):
+    post = Post.query.with_parent(current_user) \
+        .filter_by(id=post_id).first_or_404()
+    if current_user != post.author:
+        abort(403)
+
     category = Category.query.get_or_404(category_id)
+
+    post.categories.remove(category)
     db.session.delete(category)
     db.session.commit()
-    flash('类别已删除。', 'info')
+    flash('博文类别已删除。', 'info')
     return redirect_back()

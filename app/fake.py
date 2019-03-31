@@ -15,7 +15,7 @@ def fake_admin():
                  username='cotte',
                  email='hellckt@126.com',
                  bio=fake.sentence())
-    admin.password = 'hellckt123'
+    admin.password = '12345678'
     db.session.add(admin)
     db.session.commit()
 
@@ -58,7 +58,9 @@ def fake_post(count=270):
                     body=fake.paragraph(30),
                     author=User.query.get(
                         random.randint(1, User.query.count())),
-                    timestamp=fake.date_time_this_year())
+                    timestamp=fake.date_time_this_year(),
+                    flag=random.randint(1, User.query.count()),
+                    viewed=random.randint(1, User.query.count() * 100))
 
         for j in range(random.randint(1, 5)):
             category = Category.query.get(
@@ -75,7 +77,8 @@ def fake_comment(count=2700):
             author=User.query.get(random.randint(1, User.query.count())),
             body=fake.sentence(),
             timestamp=fake.date_time_this_year(),
-            post=Post.query.get(random.randint(1, Post.query.count()))
+            post=Post.query.get(random.randint(1, Post.query.count())),
+            flag=random.randint(1, Post.query.count())
         )
         db.session.add(comment)
     db.session.commit()

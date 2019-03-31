@@ -15,8 +15,8 @@
                         <div class="card mb-3">
                             <div class="row no-gutters">
                                 <div class="col-md-4">
-                                    <img src="https://www.shmtu.edu.cn/sites/default/files/smulogo.png"
-                                         class="rounded-circle bg-dark card-img">
+                                    <img src="{{ url_for('main.get_avatar', filename=follow.followed.avatar_m) }}"
+                                         class="card-img">
                                 </div>
                                 <div class="col-md-8">
                                     <div class="card-body">
