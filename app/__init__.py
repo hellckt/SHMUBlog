@@ -7,7 +7,7 @@ from flask import Flask, request
 
 from app.commands import register_commands
 from app.extensions import db, bootstrap, login_manager, csrf, ckeditor, \
-    moment, avatars
+    moment, avatars, whooshee
 from config import config
 
 basedir = os.path.abspath(os.path.dirname(os.path.dirname(__file__)))
@@ -71,6 +71,7 @@ def register_extensions(app):
     ckeditor.init_app(app)
     moment.init_app(app)
     avatars.init_app(app)
+    whooshee.init_app(app)
 
 
 def register_blueprints(app):

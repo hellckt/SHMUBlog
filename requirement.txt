@@ -8,6 +8,7 @@ Flask-Login==0.4.1          # 用户登陆相关
 Bootstrap-Flask==1.0.10     # Bootstrap 前端封装库
 Flask-Moment==0.7.0         # timestamp 格式化库
 Flask-Avatars==0.2.2        # 在线头像库
+flask-whooshee==0.6.0       # 用于实现全文搜索功能
 
 python-dotenv==0.10.1       # 读取 .env .flaskenv 环境配置文件
 
