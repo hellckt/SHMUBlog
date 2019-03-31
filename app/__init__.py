@@ -6,7 +6,8 @@ from logging.handlers import RotatingFileHandler
 from flask import Flask, request
 
 from app.commands import register_commands
-from app.extensions import db, bootstrap, login_manager, csrf, ckeditor, moment
+from app.extensions import db, bootstrap, login_manager, csrf, ckeditor, \
+    moment, avatars
 from config import config
 
 basedir = os.path.abspath(os.path.dirname(os.path.dirname(__file__)))
@@ -69,6 +70,7 @@ def register_extensions(app):
     csrf.init_app(app)
     ckeditor.init_app(app)
     moment.init_app(app)
+    avatars.init_app(app)
 
 
 def register_blueprints(app):
@@ -80,14 +82,21 @@ def register_blueprints(app):
     from .main import bp as main_bp
     app.register_blueprint(main_bp)
 
+    # 认证模块
     from .auth import bp as auth_bp
     app.register_blueprint(auth_bp, url_prefix='/auth')
 
+    # 用户模块
     from .user import bp as user_bp
     app.register_blueprint(user_bp, url_prefix='/user')
 
+    # 博文模块
     from .post import bp as post_bp
     app.register_blueprint(post_bp, url_prefix='/post')
+
+    # 管理员模块
+    from .admin import bp as admin_bp
+    app.register_blueprint(admin_bp, url_prefix='/admin')
 
     # 错误模块
     from .errors import bp as errors_bp

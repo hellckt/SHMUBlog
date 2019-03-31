@@ -11,6 +11,13 @@ class Config(object):
     SHMUBLOG_POST_PER_PAGE = 10
     SHMUBLOG_COMMENT_PER_PAGE = 10
 
+    SHMUBLOG_MANAGE_USER_PER_PAGE = 10
+    SHMUBLOG_MANAGE_POST_PER_PAGE = 10
+    SHMUBLOG_MANAGE_COMMENT_PER_PAGE = 10
+    SHMUBLOG_MANAGE_CATEGORY_PER_PAGE = 10
+
+    SHMUBLOG_UPLOAD_PATH = os.path.join(basedir, 'uploads')
+
     # Flask-SQLAlchemy
     SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URL') or \
                               'sqlite:///' + os.path.join(basedir, 'app.db')
@@ -19,6 +26,10 @@ class Config(object):
     # Flask-CKEditor
     CKEDITOR_ENABLE_CSRF = True
     CKEDITOR_SERVE_LOCAL = False
+
+    # Flask-avatars
+    AVATARS_SAVE_PATH = os.path.join(SHMUBLOG_UPLOAD_PATH, 'avatars')
+    AVATARS_SIZE_TUPLE = (30, 100, 200)
 
 
 class DevelopmentConfig(Config):

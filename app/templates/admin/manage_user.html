@@ -1,0 +1,113 @@
+{% extends 'admin/index.html' %}
+{% from 'bootstrap/pagination.html' import render_pagination %}
+
+{% block title %}管理用户{% endblock %}
+
+{% block content %}
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            {{ render_breadcrumb_item('admin.index', '管理员主页') }}
+            {{ render_breadcrumb_item('admin.manage_user', '管理用户') }}
+        </ol>
+    </nav>
+    <div class="mb-md-3">
+        <h1>用户
+            <small class="text-muted">{{ pagination.total }}</small>
+        </h1>
+        <ul class="nav nav-pills">
+            <li class="nav-item">
+                <a class="nav-link disabled" href="#">筛选</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link {% if request.args.get('filter', 'all') == 'all' %}active{% endif %}"
+                   href="{{ url_for('admin.manage_user', filter='all') }}">所有</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link {% if request.args.get('filter') == 'blocked' %}active{% endif %}"
+                   href="{{ url_for('admin.manage_user', filter='blocked') }}">被封禁</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link {% if request.args.get('filter') == 'administrator' %}active{% endif %}"
+                   href="{{ url_for('admin.manage_user', filter='administrator') }}">管理员</a>
+            </li>
+        </ul>
+    </div>
+    {% if users %}
+        <table class="table table-striped">
+            <thead>
+            <tr>
+                <th>编号</th>
+                <th>姓名/用户名</th>
+                <th>邮箱</th>
+                <th>简介</th>
+                <th>注册时间</th>
+                <th>最后活跃时间</th>
+                <th>操作</th>
+            </tr>
+            </thead>
+            {% for user in users %}
+                <tr>
+                    <td>
+                        <a>
+                            {{ user.id }}
+                        </a>
+                    </td>
+                    <td>
+                        <a href="{{ url_for('user.index', username=user.username) }}">
+                            {{ user.name }}
+                            <small class="text-muted">
+                                {{ user.username }}
+                            </small>
+                        </a>
+                    </td>
+                    <td>
+                        <a href="mailto:{{ user.email }}">
+                            {{ user.email }}
+                        </a>
+                    </td>
+                    <td>
+                        {{ user.bio }}
+                    </td>
+                    <td>
+                        {{ moment(user.member_since).format('lll') }}
+                    </td>
+                    <td>
+                        {{ moment(user.last_seen).format('lll') }}
+                    </td>
+                    <td>
+                        {% if user.role.name != 'Administrator' %}
+                            {% if user.active %}
+                                <form class="inline"
+                                      action="{{ url_for('admin.block_user', user_id=user.id) }}"
+                                      method="post">
+                                    <input type="hidden" name="csrf_token"
+                                           value="{{ csrf_token() }}">
+                                    <input type="submit"
+                                           onclick="return confirm('确认封禁？');"
+                                           class="btn btn-warning btn-sm"
+                                           value="封禁">
+                                </form>
+                            {% else %}
+                                <form class="inline"
+                                      action="{{ url_for('admin.unblock_user', user_id=user.id) }}"
+                                      method="post">
+                                    <input type="hidden" name="csrf_token"
+                                           value="{{ csrf_token() }}">
+                                    <input type="submit"
+                                           onclick="return confirm('确认解封？');"
+                                           class="btn btn-secondary btn-sm"
+                                           value="解封">
+                                </form>
+                            {% endif %}
+                        {% endif %}
+                    </td>
+                </tr>
+            {% endfor %}
+        </table>
+        <div>
+            {{ render_pagination(pagination, align='center') }}
+        </div>
+    {% else %}
+        <div class="tip"><h5>没有用户。</h5></div>
+    {% endif %}
+{% endblock %}

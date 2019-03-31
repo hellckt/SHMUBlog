@@ -8,9 +8,9 @@
     <h3>{{ user.name }} 的收藏列表
         {% if current_user ==user %}
             {% if current_user.public_collections %}
-                <cite>全部用户可见</cite>
+                <small class="text-muted">全部用户可见</small>
             {% else %}
-                <cite>仅自己可见</cite>
+                <small class="text-muted">仅自己可见</small>
             {% endif %}
         {% endif %}
     </h3>

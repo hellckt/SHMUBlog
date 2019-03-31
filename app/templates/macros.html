@@ -3,15 +3,49 @@
         {# TODO: 考虑头像功能 #}
         <a href="{{ url_for('user.index', username=user.username) }}">
             <img class="rounded bg-dark card-img-top"
-                 src="https://www.shmtu.edu.cn/sites/default/files/smulogo.png">
+                 src="{{ url_for('main.get_avatar', filename=user.avatar_l) }}">
         </a>
         <div class="card-body">
             <h5>
-                <a href="{{ url_for('user.index', username=user.username) }}">
-                    {{ user.name }}
-                </a>
+                {% if user.is_active %}
+                    <a href="{{ url_for('user.index', username=user.username) }}">
+                        {{ user.name }}
+                    </a>
+                {% else %}
+                    <a href="{{ url_for('user.index', username=user.username) }}">
+                        {{ user.name }}
+                        <small class="text-muted">
+                            已被封禁
+                        </small>
+                    </a>
+                {% endif %}
             </h5>
             <h6 class="card-subtitle mb-2 text-muted">{{ user.username }}</h6>
+            {% if current_user.is_admin and user != current_user %}
+                {% if user.active %}
+                    <form class="inline"
+                          action="{{ url_for('admin.block_user', user_id=user.id) }}"
+                          method="post">
+                        <input type="hidden" name="csrf_token"
+                               value="{{ csrf_token() }}">
+                        <input type="submit"
+                               onclick="return confirm('确认封禁？');"
+                               class="btn btn-warning btn-sm"
+                               value="封禁">
+                    </form>
+                {% else %}
+                    <form class="inline"
+                          action="{{ url_for('admin.unblock_user', user_id=user.id) }}"
+                          method="post">
+                        <input type="hidden" name="csrf_token"
+                               value="{{ csrf_token() }}">
+                        <input type="submit"
+                               onclick="return confirm('确认解封？');"
+                               class="btn btn-secondary btn-sm"
+                               value="解封">
+                    </form>
+                {% endif %}
+            {% endif %}
             <hr>
             {% if user.bio %}
                 <p class="card-text">{{ user.bio }}</p>
@@ -79,7 +113,7 @@
                         关注
                     </button>
                     {% if current_user.is_followed_by(user) %}
-                        <p class="badge badge-light">他已关注了你</p>
+                        <p class="badge badge-light">他关注了你</p>
                     {% endif %}
                 </form>
             {% endif %}

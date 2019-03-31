@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 from datetime import datetime
 
-from flask import render_template
+from flask import render_template, send_from_directory, current_app
 from flask_login import current_user
 
 from app import db
@@ -20,3 +20,9 @@ def before_request():
 @bp.route('/index', methods=['GET'])
 def index():
     return render_template('index.html')
+
+
+@bp.route('/avatars/<path:filename>')
+def get_avatar(filename):
+    return send_from_directory(current_app.config['AVATARS_SAVE_PATH'],
+                               filename)

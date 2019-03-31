@@ -14,7 +14,7 @@ class AuthTestCase(BaseTestCase):
     def test_login_blocked_user(self):
         response = self.login(email='blocked@126.com', password='123')
         data = response.get_data(as_text=True)
-        self.assertIn('你的账号已经被封禁。', data)
+        self.assertIn('你的账号已经被封禁', data)
 
     def test_fail_login(self):
         response = self.login(email='wrong-username@126.com',

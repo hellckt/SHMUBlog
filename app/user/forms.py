@@ -1,8 +1,9 @@
 # -*- coding: utf-8 -*-
 from flask_login import current_user
 from flask_wtf import FlaskForm
+from flask_wtf.file import FileRequired, FileAllowed
 from wtforms import StringField, TextAreaField, SubmitField, PasswordField, \
-    BooleanField
+    BooleanField, FileField, HiddenField
 from wtforms.validators import DataRequired, Length, Regexp, Optional, \
     ValidationError, EqualTo
 
@@ -22,6 +23,22 @@ class EditProfileForm(FlaskForm):
         if field.data != current_user.username and User.query.filter_by(
                 username=field.data).first():
             raise ValidationError('该用户名已被使用。')
+
+
+class UploadAvatarForm(FlaskForm):
+    image = FileField('上传图片', validators=[
+        FileRequired(),
+        FileAllowed(['jpg', 'png'], '图片格式只能是 .jpg 或 .png 文件')
+    ])
+    submit = SubmitField('提交')
+
+
+class CropAvatarForm(FlaskForm):
+    x = HiddenField()
+    y = HiddenField()
+    w = HiddenField()
+    h = HiddenField()
+    submit = SubmitField('裁截并更新')
 
 
 class ChangePasswordForm(FlaskForm):

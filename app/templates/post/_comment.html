@@ -23,8 +23,8 @@
                         <div class="row no-gutters">
                             <div class="col-md-2">
                                 <a href="{{ url_for('user.index', username=comment.author.username) }}">
-                                    <img class="rounded-circle bg-dark card-img"
-                                         src="https://www.shmtu.edu.cn/sites/default/files/smulogo.png">
+                                    <img class="card-img"
+                                         src="{{ url_for('main.get_avatar', filename=comment.author.avatar_m) }}">
                                 </a>
                             </div>
                             <div class="col-md-10">
@@ -37,12 +37,25 @@
                                             发表于 {{ moment(comment.timestamp).fromNow(refresh=True) }}
                                         </small>
                                         {% if current_user.is_authenticated %}
+                                            <span class="float-md-right">
                                             {% if current_user != comment.author %}
-                                                <a class="btn float-md-right"
+                                                <a class="btn"
                                                    href="{{ url_for('post.reply_comment', comment_id=comment.id) }}">
                                                     回复
                                                 </a>
+                                                <form class="inline"
+                                                      method="post"
+                                                      action="{{ url_for('post.report_comment', comment_id=comment.id, next=request.full_path) }}">
+                                                    <input type="hidden"
+                                                           name="csrf_token"
+                                                           value="{{ csrf_token() }}">
+                                                    <button type="submit"
+                                                       class="btn btn-link">
+                                                        举报
+                                                    </button>
+                                                </form>
                                             {% endif %}
+                                            </span>
                                         {% endif %}
                                     </h5>
                                     <p class="card-text">
@@ -59,12 +72,12 @@
                     </div>
                 </div>
             {% endfor %}
-            <div class="page-footer">
-                {{ render_pagination(pagination) }}
-            </div>
         {% else %}
             <p class="tip">尚未有评论。</p>
         {% endif %}
+    </div>
+    <div class="row justify-content-md-center">
+        {{ render_pagination(pagination) }}
     </div>
 
     {# 评论表单 #}
@@ -76,14 +89,17 @@
                         <div class="card mb-3 border-0">
                             <div class="row no-gutters">
                                 <div class="col-md-2">
-                                    <img class="rounded-circle bg-dark card-img"
-                                         src="https://www.shmtu.edu.cn/sites/default/files/smulogo.png">
+                                    <img class="card-img"
+                                         src="{{ url_for('main.get_avatar', filename=current_user.avatar_m) }}">
                                 </div>
                                 <div class="col-md-10">
                                     <div class="card-body">
                                         <h5 class="card-title">
                                             <a href="{{ url_for('user.index', username=current_user.username) }}">
                                                 {{ current_user.name }}
+                                                <small class="text-muted">
+                                                    {{ current_user.username }}
+                                                </small>
                                             </a>
                                         </h5>
                                         {% if request.args.get('reply') %}

@@ -5,6 +5,7 @@ from flask_login import LoginManager, AnonymousUserMixin
 from flask_moment import Moment
 from flask_sqlalchemy import SQLAlchemy
 from flask_wtf import CSRFProtect
+from flask_avatars import Avatars
 
 bootstrap = Bootstrap()
 db = SQLAlchemy()
@@ -12,6 +13,7 @@ login_manager = LoginManager()
 csrf = CSRFProtect()
 ckeditor = CKEditor()
 moment = Moment()
+avatars = Avatars()
 
 
 # 配置 flask-login

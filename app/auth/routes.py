@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from flask import url_for, render_template, flash
+from flask import url_for, render_template, flash, current_app
 from flask_login import current_user, login_user, login_required, logout_user
 from werkzeug.utils import redirect
 
@@ -23,7 +23,8 @@ def login():
                 flash('登陆成功。', 'info')
                 return redirect_back()
             else:
-                flash('你的账号已经被封禁。', 'warning')
+                admin_email = current_app.config.get('SHMUBLOG_ADMIN_EMAIL')
+                flash(f'你的账号已经被封禁，如有异议，请发送申诉邮件到：{admin_email}。', 'warning')
                 return redirect(url_for('main.index'))
         flash('错误的密码或邮箱。', 'warning')
     return render_template('auth/login.html', form=form)

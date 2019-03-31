@@ -5,12 +5,12 @@ from flask_login import login_required, current_user, fresh_login_required, \
     logout_user
 from sqlalchemy import func
 
-from app import db
+from app import db, avatars
 from app.decorators import permission_required
 from app.models import User, Post, Category, categorizing, Collect, Comment
 from app.user import bp
 from app.user.forms import EditProfileForm, ChangePasswordForm, \
-    PrivacySettingForm, DeleteAccountForm
+    PrivacySettingForm, DeleteAccountForm, UploadAvatarForm, CropAvatarForm
 from app.utils import redirect_back
 
 
@@ -118,6 +118,47 @@ def edit_profile():
     form.username.data = current_user.username
     form.bio.data = current_user.bio
     return render_template('user/settings/edit_profile.html', form=form)
+
+
+@bp.route('/settings/avatar')
+@login_required
+def change_avatar():
+    upload_form = UploadAvatarForm()
+    crop_form = CropAvatarForm()
+    return render_template('user/settings/change_avatar.html',
+                           upload_form=upload_form, crop_form=crop_form)
+
+
+@bp.route('/settings/avatar/upload', methods=['POST'])
+@login_required
+@permission_required('UPLOAD')
+def upload_avatar():
+    form = UploadAvatarForm()
+    if form.validate_on_submit():
+        image = form.image.data
+        filename = avatars.save_avatar(image)
+        current_user.avatar_raw = filename
+        db.session.commit()
+        flash('图片已上传，请裁剪到合适尺寸。', 'success')
+    return redirect(url_for('user.change_avatar'))
+
+
+@bp.route('/settings/avatar/crop', methods=['POST'])
+@login_required
+def crop_avatar():
+    form = CropAvatarForm()
+    if form.validate_on_submit():
+        x = form.x.data
+        y = form.y.data
+        w = form.w.data
+        h = form.h.data
+        filenames = avatars.crop_avatar(current_user.avatar_raw, x, y, w, h)
+        current_user.avatar_s = filenames[0]
+        current_user.avatar_m = filenames[1]
+        current_user.avatar_l = filenames[2]
+        db.session.commit()
+        flash('头像已更新。', 'success')
+    return redirect(url_for('user.change_avatar'))
 
 
 @bp.route('/settings/change-password', methods=['GET', 'POST'])

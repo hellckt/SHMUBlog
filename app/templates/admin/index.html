@@ -1,0 +1,157 @@
+{% extends 'base.html' %}
+{% from 'bootstrap/nav.html' import render_breadcrumb_item %}
+
+{% block title %}管理面板{% endblock %}
+
+{% block navbar %}
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark mb-md-3">
+        <div class="container">
+            <a class="navbar-brand" href="{{ url_for('admin.index') }}">
+                <img class="rounded-circle"
+                     src="{{ url_for('static', filename='favicon.ico') }}"
+                     alt="SHMUBlog"> SHMUBlog 管理面板
+            </a>
+            <button class="navbar-toggler" type="button" data-toggle="collapse"
+                    data-target="#navbarColor01"
+                    aria-controls="navbarColor01" aria-expanded="false"
+                    aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+
+            <div class="collapse navbar-collapse" id="navbarColor01">
+                <div class="navbar-nav ml-auto">
+                    {{ render_nav_item('main.index', '网站首页') }}
+                    <div class="dropdown nav-item">
+                        <a href="#" class="nav-link dropdown-toggle"
+                           data-toggle="dropdown" role="button"
+                           aria-expanded="false">
+                            管理
+                        </a>
+                        <div class="dropdown-menu dropdown-menu-right"
+                             role="menu">
+                            <a class="dropdown-item"
+                               href="{{ url_for('admin.manage_post') }}">博文</a>
+                            <a class="dropdown-item"
+                               href="{{ url_for('admin.manage_user') }}">用户</a>
+                            <a class="dropdown-item"
+                               href="{{ url_for('admin.manage_comment') }}">评论</a>
+                            <a class="dropdown-item"
+                               href="{{ url_for('admin.manage_category') }}">博文类别</a>
+                        </div>
+                    </div>
+                    <div class="dropdown nav-item">
+                        <a href="#" class="nav-link dropdown-toggle"
+                           data-toggle="dropdown" role="button"
+                           aria-expanded="false">
+                            {{ current_user.username }}
+                        </a>
+                        <div class="dropdown-menu dropdown-menu-right"
+                             role="menu">
+                            <a class="dropdown-item"
+                               href="{{ url_for('user.index', username=current_user.username) }}">
+                                我的首页
+                            </a>
+                            <div class="dropdown-divider"></div>
+                            <a class="dropdown-item"
+                               href="{{ url_for('user.index', username=current_user.username) }}">
+                                我的主页
+                            </a>
+                            <a class="dropdown-item"
+                               href="{{ url_for('user.show_collections', username=current_user.username) }}">
+                                我的收藏
+                            </a>
+                            <a class="dropdown-item"
+                               href="{{ url_for('user.manage_posts') }}">
+                                我的管理
+                            </a>
+                            <a class="dropdown-item"
+                               href="{{ url_for('user.edit_profile') }}">
+                                个人设置
+                            </a>
+                            <a class="dropdown-item"
+                               href="{{ url_for('auth.logout') }}">
+                                注销
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
+{% endblock %}
+
+{% block content %}
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            {{ render_breadcrumb_item('admin.index', '管理员主页') }}
+        </ol>
+    </nav>
+    <div class="row mb-md-3">
+        <div class="col-md-6">
+            <div class="card border-secondary mb-3 h-100">
+                <div class="card-header">
+                    博文
+                </div>
+                <div class="card-body">
+                    <h4 class="card-title">
+                        总数：{{ post_count | default('0') }}</h4>
+                </div>
+                <div class="card-footer">
+                    <a class="btn btn-secondary text-white float-md-right"
+                       href="{{ url_for('admin.manage_post') }}">管理</a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card border-secondary h-100">
+                <div class="card-header">
+                    用户
+                </div>
+                <div class="card-body">
+                    <h4 class="card-title">
+                        总数：{{ user_count | default('0') }}</h4>
+                    <p class="card-text">
+                        被封禁用户: {{ blocked_user_count|default('0') }}
+                    </p>
+                </div>
+                <div class="card-footer">
+                    <a class="btn btn-secondary text-white float-md-right"
+                       href="{{ url_for('admin.manage_user') }}">管理</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row mb-md-3">
+        <div class="col-md-6">
+            <div class="card border-secondary mb-3 h-100">
+                <div class="card-header">
+                    评论
+                </div>
+                <div class="card-body">
+                    <h4 class="card-title">
+                        总数：{{ comment_count | default('0') }}</h4>
+                </div>
+                <div class="card-footer">
+                    <a class="btn btn-secondary text-white float-md-right"
+                       href="{{ url_for('admin.manage_comment') }}">管理</a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card border-secondary h-100">
+                <div class="card-header">
+                    博文类别
+                </div>
+                <div class="card-body">
+                    <h4 class="card-title">
+                        总数：{{ category_count | default('0') }}</h4>
+                </div>
+                <div class="card-footer">
+                    <a class="btn btn-secondary text-white float-md-right"
+                       href="{{ url_for('admin.manage_category') }}">管理</a>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

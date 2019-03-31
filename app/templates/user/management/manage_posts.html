@@ -18,7 +18,7 @@
                             {% if post.categories %}
                                 {% for category in post.categories %}
                                     <form class="inline mr-md-1" method="post"
-                                          action="{{ url_for('post.delete_category', category_id=category.id, next=request.full_path) }}">
+                                          action="{{ url_for('post.delete_post_category', post_id=post.id, category_id=category.id, next=request.full_path) }}">
                                         <input type="hidden" name="csrf_token"
                                                value="{{ csrf_token() }}"/>
                                         <button type="submit"

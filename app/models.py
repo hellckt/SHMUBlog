@@ -2,6 +2,7 @@
 from datetime import datetime
 
 from flask import current_app
+from flask_avatars import Identicon
 from flask_login import UserMixin
 from werkzeug.security import generate_password_hash, check_password_hash
 
@@ -48,17 +49,19 @@ class Role(db.Model):
             COLLECT         收藏权限
             PUBLISH         博文发表权限
             COMMENT         评论权限
+            UPLOAD          上传权限
             DELETE_POST     删除博文权限
             DELETE_COMMENT  删除评论权限
             DELETE_ACCOUNT  删除账户权限
             ADMINISTER      管理员权限
         """
         roles_permissions_map = {
-            'User': ['FOLLOW', 'UNFOLLOW', 'COLLECT', 'COMMENT', 'PUBLISH',
-                     'DELETE_POST', 'DELETE_COMMENT', 'DELETE_ACCOUNT'],
-            'Administrator': ['FOLLOW', 'UNFOLLOW', 'COLLECT', 'COMMENT',
-                              'PUBLISH', 'DELETE_POST', 'DELETE_COMMENT',
-                              'DELETE_ACCOUNT','ADMINISTER']
+            'User': ['FOLLOW', 'UNFOLLOW', 'COLLECT', 'COMMENT', 'UPLOAD',
+                     'PUBLISH', 'DELETE_POST', 'DELETE_COMMENT',
+                     'DELETE_ACCOUNT'],
+            'Administrator': ['FOLLOW', 'UNFOLLOW', 'COLLECT', 'UPLOAD',
+                              'COMMENT', 'PUBLISH', 'DELETE_POST',
+                              'DELETE_COMMENT', 'DELETE_ACCOUNT', 'ADMINISTER']
         }
 
         for role_name in roles_permissions_map:
@@ -120,6 +123,11 @@ class User(db.Model, UserMixin):
 
     active = db.Column(db.Boolean, default=True)
 
+    avatar_s = db.Column(db.String(64))
+    avatar_m = db.Column(db.String(64))
+    avatar_l = db.Column(db.String(64))
+    avatar_raw = db.Column(db.String(64))
+
     # 是否公开收藏
     public_collections = db.Column(db.Boolean, default=True)
 
@@ -146,6 +154,7 @@ class User(db.Model, UserMixin):
         super(User, self).__init__(**kwargs)
         self.set_role()  # 初始化用户角色
         self.follow(self)  # 让用户关注自己
+        self.generate_avatar()  # 生成随机头像
 
     @property
     def is_admin(self):
@@ -242,6 +251,15 @@ class User(db.Model, UserMixin):
         return Collect.query.with_parent(self).filter_by(
             collected_id=post.id).first() is not None
 
+    def generate_avatar(self):
+        """生成头像"""
+        avatar = Identicon()
+        filenames = avatar.generate(text=self.username)
+        self.avatar_s = filenames[0]
+        self.avatar_m = filenames[1]
+        self.avatar_l = filenames[2]
+        db.session.commit()
+
 
 categorizing = db.Table('categorizing',
                         db.Column('post_id', db.Integer,
@@ -265,7 +283,9 @@ class Post(db.Model):
     title = db.Column(db.String(60))
     body = db.Column(db.Text)
     timestamp = db.Column(db.DateTime, default=datetime.utcnow, index=True)
+    flag = db.Column(db.Integer, default=0)
     can_comment = db.Column(db.Boolean, default=True)
+    viewed = db.Column(db.Integer, default=0)
 
     author_id = db.Column(db.Integer, db.ForeignKey('user.id'))
 

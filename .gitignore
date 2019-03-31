@@ -24,3 +24,7 @@ env/
 
 # log files
 logs/
+
+# upload files
+uploads/*
+uploads/avatars/*
