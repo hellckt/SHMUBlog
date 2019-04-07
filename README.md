@@ -84,6 +84,8 @@ pip install -r requirement.txt
 ```
 
 ### 设置配置环境
+
+#### 创建环境文件
 ```commandline
 touch .flaskenv
 ```
@@ -93,6 +95,11 @@ touch .flaskenv
 FLASK_APP=shmublog.py
 FLASK_ENV=development
 FLASK_DEBUG=1
+```
+
+#### 创建初始化目录
+```commandline
+ mkdir -p logs uploads/avatars
 ```
 
 ### 初始化
