@@ -1,0 +1,30 @@
+{% extends 'user/base.html' %}
+{% from 'bootstrap/pagination.html' import render_pagination %}
+{% from 'macros.html' import post_card with context %}
+
+{% block title %}我的首页{% endblock %}
+
+{% block right_content %}
+    <h3>我的首页</h3>
+    <hr>
+    {% if posts %}
+        {% for post in posts %}
+            {{ post_card(post) }}
+            {% if not loop.last %}
+                <hr>
+            {% endif %}
+        {% endfor %}
+    {% else %}
+        <div class="tip">
+            <h5>没有任何文章。</h5>
+            {% if current_user.is_authenticated %}
+                <a href="{{ url_for('post.new_post') }}">来写一篇文章吧。</a>
+            {% endif %}
+        </div>
+    {% endif %}
+    {% if posts %}
+        <div class="page-footer">
+            {{ render_pagination(pagination, align='center') }}
+        </div>
+    {% endif %}
+{% endblock %}

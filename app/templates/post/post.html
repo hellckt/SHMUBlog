@@ -1,0 +1,91 @@
+{% extends 'user/base.html' %}
+{% from 'bootstrap/form.html' import render_form %}
+{% from 'bootstrap/pagination.html' import render_pagination %}
+
+{% block title %}{{ post.title }}{% endblock %}
+
+{% block right_content %}
+    <div class="page-header">
+        <h1>{{ post.title }} </h1>
+        <small>
+            类别：
+            {% if post.categories %}
+                {% for category in post.categories %}
+                    <a href="#">
+                        {{ category.name }}
+                    </a>
+                {% endfor %}
+            {% else %}
+                <a>未分类</a>
+            {% endif %}
+            阅读数： {{ post.viewed }}
+            发表于： {{ moment(post.timestamp).format('LLL') }}
+        </small>
+        {% if current_user.is_authenticated %}
+            <div class="float-md-right">
+                <div class="btn-group" role="group" aria-label="Basic example">
+                    {% if current_user.is_admin %}
+                        <form class="inline"
+                              method="post"
+                              action="{{ url_for('admin.delete_post', post_id=post.id, next=request.host_url) }}">
+                            <input type="hidden" name="csrf_token"
+                                   value="{{ csrf_token() }}">
+                            <button type="submit"
+                                    class="btn btn-outline-danger btn-sm mr-md-3">
+                                删除
+                            </button>
+                        </form>
+                    {% endif %}
+                    {% if current_user != post.author %}
+                        <form class="inline"
+                              method="post"
+                              action="{{ url_for('post.report_post', post_id=post.id, next=request.full_path) }}">
+                            <input type="hidden" name="csrf_token"
+                                   value="{{ csrf_token() }}">
+                            <button type="submit"
+                                    class="btn btn-outline-danger btn-sm mr-md-3">
+                                举报
+                            </button>
+                        </form>
+                    {% endif %}
+                    {% if current_user.is_collecting(post) %}
+                        <form class="inline" method="post"
+                              action="{{ url_for('post.uncollect', post_id=post.id) }}">
+                            <input type="hidden" name="csrf_token"
+                                   value="{{ csrf_token() }}">
+                            <button type="submit"
+                                    class="btn btn-outline-secondary btn-sm">
+                                取消收藏
+                            </button>
+                        </form>
+                    {% else %}
+                        <form class="inline" method="post"
+                              action="{{ url_for('post.collect', post_id=post.id) }}">
+                            <input type="hidden" name="csrf_token"
+                                   value="{{ csrf_token() }}">
+                            <button type="submit"
+                                    class="btn btn-outline-primary btn-sm">
+                                收藏
+                            </button>
+                        </form>
+                    {% endif %}
+                </div>
+            </div>
+        {% else %}
+            <form class="inline float-md-right" method="post"
+                  action="{{ url_for('post.collect', post_id=post.id) }}">
+                <input type="hidden" name="csrf_token"
+                       value="{{ csrf_token() }}">
+                <button type="submit" class="btn btn-primary btn-sm">
+                    <span class="oi oi-star"></span> 收藏
+                </button>
+            </form>
+        {% endif %}
+    </div>
+    <hr>
+    {{ post.body|safe }}
+    <hr>
+    <div class="row">
+        {% include 'post/_comment.html' %}
+    </div>
+{% endblock %}

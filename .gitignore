@@ -2,12 +2,14 @@
 __pycache__/
 *.py[cod]
 *$py.class
+:memory
 
 # pyenv
 .python-version
 
 # Environments
 .env
+.flaskenv
 venv/
 env/
 
@@ -22,3 +24,10 @@ env/
 
 # log files
 logs/
+
+# upload files
+uploads/*
+uploads/avatars/*
+
+# Whooshee index dir
+whooshee/

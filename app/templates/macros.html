@@ -1,0 +1,178 @@
+{% macro user_card(user) %}
+    <div class="card text-center">
+        {# TODO: 考虑头像功能 #}
+        <a href="{{ url_for('user.index', username=user.username) }}">
+            <img class="rounded bg-dark card-img-top"
+                 src="{{ url_for('main.get_avatar', filename=user.avatar_l) }}">
+        </a>
+        <div class="card-body">
+            <h5>
+                {% if user.is_active %}
+                    <a href="{{ url_for('user.index', username=user.username) }}">
+                        {{ user.name }}
+                    </a>
+                {% else %}
+                    <a href="{{ url_for('user.index', username=user.username) }}">
+                        {{ user.name }}
+                        <small class="text-muted">
+                            已被封禁
+                        </small>
+                    </a>
+                {% endif %}
+            </h5>
+            <h6 class="card-subtitle mb-2 text-muted">{{ user.username }}</h6>
+            {% if current_user.is_admin and user != current_user %}
+                {% if user.active %}
+                    <form class="inline"
+                          action="{{ url_for('admin.block_user', user_id=user.id) }}"
+                          method="post">
+                        <input type="hidden" name="csrf_token"
+                               value="{{ csrf_token() }}">
+                        <input type="submit"
+                               onclick="return confirm('确认封禁？');"
+                               class="btn btn-warning btn-sm"
+                               value="封禁">
+                    </form>
+                {% else %}
+                    <form class="inline"
+                          action="{{ url_for('admin.unblock_user', user_id=user.id) }}"
+                          method="post">
+                        <input type="hidden" name="csrf_token"
+                               value="{{ csrf_token() }}">
+                        <input type="submit"
+                               onclick="return confirm('确认解封？');"
+                               class="btn btn-secondary btn-sm"
+                               value="解封">
+                    </form>
+                {% endif %}
+            {% endif %}
+            <hr>
+            {% if user.bio %}
+                <p class="card-text">{{ user.bio }}</p>
+                <hr>
+            {% endif %}
+            <a class="btn btn-link"
+               href="{{ url_for('user.index', username=user.username) }}">
+                文章
+                <span class="badge badge-dark badge-pill">{{ user.posts|length }}</span>
+            </a>
+            {% if current_user.public_collections or current_user == user %}
+                <a class="btn btn-link"
+                   href="{{ url_for('user.show_collections', username=user.username) }}">
+                    收藏
+                    <span class="badge badge-dark badge-pill">{{ user.collections|length }}</span>
+                </a>
+            {% endif %}
+            <hr>
+            {{ follow_area(user) }}
+        </div>
+        <div class="card-footer text-muted">
+            最后活跃时间：{{ moment(user.last_seen).fromNow() }}
+        </div>
+    </div>
+{% endmacro %}
+
+{# 关注区域 #}
+{% macro follow_area(user) %}
+
+    <a class="btn btn-link"
+       href="{{ url_for('user.show_following', username=user.username) }}">
+        关注
+        <span class="badge badge-dark badge-pill">
+            {{ user.following.count() - 1 }}
+        </span>
+    </a>
+    <a class="btn btn-link"
+       href="{{ url_for('user.show_followers', username=user.username) }}">
+        粉丝
+        <span class="badge badge-dark badge-pill">
+            {{ user.followers.count() - 1 }}
+        </span>
+    </a>
+
+    {% if current_user.is_authenticated %}
+        {% if user != current_user %}
+            {% if current_user.is_following(user) %}
+                <form class="inline" method="post"
+                      action="{{ url_for('user.unfollow', username=user.username, next=request.full_path) }}">
+                    <input type="hidden" name="csrf_token"
+                           value="{{ csrf_token() }}">
+                    <button type="submit" class="btn btn-dark btn-sm">
+                        取消关注
+                    </button>
+                    {% if current_user.is_followed_by(user) %}
+                        <p class="badge badge-light">互关</p>
+                    {% endif %}
+                </form>
+            {% else %}
+                <form class="inline" method="post"
+                      action="{{ url_for('user.follow', username=user.username, next=request.full_path) }}">
+                    <input type="hidden" name="csrf_token"
+                           value="{{ csrf_token() }}">
+                    <button type="submit" class="btn btn-primary btn-sm">
+                        关注
+                    </button>
+                    {% if current_user.is_followed_by(user) %}
+                        <p class="badge badge-light">他关注了你</p>
+                    {% endif %}
+                </form>
+            {% endif %}
+        {% endif %}
+    {% else %}
+        <form class="inline" method="post"
+              action="{{ url_for('user.follow', username=user.username) }}">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <button type="submit" class="btn btn-primary btn-sm">Follow
+            </button>
+        </form>
+    {% endif %}
+{% endmacro %}
+
+{% macro post_card(post, badge='', badge_color='danger') %}
+    <h4>
+        <a href="{{ url_for('post.show_post', post_id=post.id) }}">
+            {{ post.title }}
+            {% if badge %}
+                <small class="badge badge-pill badge-{{ badge_color }} text-white ml-md-2">
+                    {{ badge }}
+                </small>
+            {% endif %}
+        </a>
+    </h4>
+    <p>
+        {{ post.body|striptags|truncate }}
+        <a href="{{ url_for('post.show_post', post_id=post.id) }}">
+            查看全文
+        </a>
+    </p>
+    <p>
+        <small>
+            <strong>作者:</strong>
+            <a href="{{ url_for('user.index', username=post.author.username) }}">
+                {{ post.author.name }}
+            </a>
+            &nbsp;&nbsp;
+            <strong>评论：</strong>
+            <a href="{{ url_for('post.show_post', post_id=post.id) +'#comments' }}">
+                {{ post.comments|length }}
+            </a>
+            &nbsp;&nbsp;
+            <strong>类别:</strong>
+            {% if post.categories %}
+                {% for category in post.categories %}
+                    <a>
+                        {{ category.name }}
+                    </a>
+                {% endfor %}
+            {% else %}
+                <a>未分类</a>
+            {% endif %}
+            &nbsp;&nbsp;
+            <strong>阅读数：</strong> {{ post.viewed }}
+            &nbsp;&nbsp;
+            <strong>收藏数：</strong> {{ post.collectors | count }}
+            &nbsp;&nbsp;
+            <strong>发布于：</strong> {{ moment(post.timestamp).format('LLL') }}
+        </small>
+    </p>
+{% endmacro %}

@@ -1,0 +1,80 @@
+{% extends 'admin/index.html' %}
+{% from 'bootstrap/pagination.html' import render_pagination %}
+
+{% block title %}管理评论{% endblock %}
+
+{% block content %}
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            {{ render_breadcrumb_item('admin.index', '管理员主页') }}
+            {{ render_breadcrumb_item('admin.manage_comment', '管理评论') }}
+        </ol>
+    </nav>
+    <div class="page-header">
+        <h1>评论
+            <small class="text-muted">{{ pagination.total }}</small>
+        </h1>
+    </div>
+    {% if comments %}
+        <table class="table table-striped">
+            <thead>
+            <tr>
+                <th>编号</th>
+                <th>内容</th>
+                <th>评论者</th>
+                <th>博文</th>
+                <th>被举报数</th>
+                <th>评论时间</th>
+                <th>操作</th>
+            </tr>
+            </thead>
+            {% for comment in comments %}
+                <tr>
+                    <td>
+                        <a>
+                            {{ comment.id }}
+                        </a>
+                    </td>
+                    <td>
+                        {% if comment.replied %}
+                            @{{ comment.replied.author.name }}:
+                        {% endif %}
+                        {{ comment.body }}
+                    </td>
+                    <td>
+                        <a href="{{ url_for('user.index', username=comment.author.username) }}">
+                            {{ comment.author.name }}
+                        </a>
+                    </td>
+                    <td>
+                        <a href="{{ url_for('post.show_post', post_id=comment.post.id) }}">
+                            {{ comment.post.title}}
+                        </a>
+                    </td>
+                    <td>
+                        {{ comment.flag }}
+                    </td>
+                    <td>
+                        {{ moment(comment.timestamp).format('lll') }}
+                    </td>
+                    <td>
+                        <form class="inline" method="post"
+                              action="{{ url_for('admin.delete_comment', comment_id=comment.id, next=request.full_path) }}">
+                            <input type="hidden" name="csrf_token"
+                                   value="{{ csrf_token() }}"/>
+                            <button type="submit" class="btn btn-danger btn-sm"
+                                    onclick="return confirm('确认删除？');">
+                                删除
+                            </button>
+                        </form>
+                    </td>
+                </tr>
+            {% endfor %}
+        </table>
+        <div>
+            {{ render_pagination(pagination, align='center') }}
+        </div>
+    {% else %}
+        <div class="tip"><h5>没有评论。</h5></div>
+    {% endif %}
+{% endblock %}

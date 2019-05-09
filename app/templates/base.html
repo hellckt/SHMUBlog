@@ -1,0 +1,156 @@
+{% from 'bootstrap/nav.html' import render_nav_item %}
+
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    {% block head %}
+        <meta charset="utf-8">
+        <meta name="viewport"
+              content="width=device-width, initial-scale=1, shrink-to-fit=no">
+        <title>{% block title %}{% endblock %} - SHMUBlog</title>
+        <link rel="icon"
+              href="{{ url_for('static', filename='favicon.ico') }}">
+        <link rel="stylesheet"
+              href="{{ url_for('static', filename='css/bootstrap.min.css') }}"
+              type="text/css">
+        <link rel="stylesheet"
+              href="{{ url_for('static', filename='css/style.css') }}"
+              type="text/css">
+    {% endblock %}
+</head>
+<body>
+{% block navbar %}
+    <nav class="navbar navbar-expand-md navbar-dark bg-dark mb-3">
+        <div class="container">
+            <a class="navbar-brand" href="/">
+                <img class="rounded-circle"
+                     src="{{ url_for('static', filename='favicon.ico') }}"
+                     alt="SHMUBlog">
+                {# TODO: 考虑制作网站图标 #}
+                SHMUBLOG
+            </a>
+            <button class="navbar-toggler" type="button" data-toggle="collapse"
+                    data-target="#navbarColor01" aria-controls="navbarColor01"
+                    aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon">
+                </span>
+            </button>
+
+            <div class="collapse navbar-collapse" id="navbarCollapse">
+                <div class="navbar-nav mr-auto">
+                    {{ render_nav_item('main.index', '首页') }}
+                    {{ render_nav_item('main.explore', '随机博文') }}
+                    {% if current_user.is_authenticated %}
+                        {{ render_nav_item('main.home', '我的首页', username=current_user.username) }}
+                    {% endif %}
+                </div>
+                <div class="navbar-nav ml-auto">
+                    <form class="form-inline my-2 my-lg-0"
+                          action="{{ url_for('main.search') }}">
+                        <input type="text" name="q"
+                               class="form-control mr-sm-1"
+                               placeholder="博文、用户或博文类别"
+                               required>
+                        <button class="btn btn-secondary my-2 my-sm-0"
+                                type="submit">
+                            搜索
+                        </button>
+                    </form>
+                </div>
+                <div class="navbar-nav ml-auto">
+                    {% if current_user.is_authenticated %}
+                        {{ render_nav_item('post.new_post', '写博文') }}
+                        {% if current_user.is_admin %}
+                            {{ render_nav_item('admin.index', '管理界面') }}
+                        {% endif %}
+                        <div class="dropdown nav-item">
+                            <a href="#" class="nav-link dropdown-toggle"
+                               data-toggle="dropdown" role="button"
+                               aria-expanded="false">
+                                {{ current_user.username }}
+                                <span class="caret"></span>
+                            </a>
+                            <div class="dropdown-menu dropdown-menu-right"
+                                 role="menu">
+                                <a class="dropdown-item"
+                                   href="{{ url_for('user.index', username=current_user.username) }}">
+                                    我的主页
+                                </a>
+                                <a class="dropdown-item"
+                                   href="{{ url_for('user.show_collections', username=current_user.username) }}">
+                                    我的收藏
+                                </a>
+                                <a class="dropdown-item"
+                                   href="{{ url_for('user.manage_posts') }}">
+                                    我的管理
+                                </a>
+                                <a class="dropdown-item"
+                                   href="{{ url_for('user.edit_profile') }}">
+                                    个人设置
+                                </a>
+                                <a class="dropdown-item"
+                                   href="{{ url_for('auth.logout') }}">
+                                    注销
+                                </a>
+                            </div>
+                        </div>
+                    {% else %}
+                        <a class="btn btn-outline-secondary"
+                           href="{{ url_for('auth.login') }}">登陆</a>&nbsp;
+                        &nbsp;
+                        <a class="btn btn-secondary"
+                           href="{{ url_for('auth.register') }}">注册</a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </nav>
+{% endblock %}
+
+<main class="container pb-md-5">
+    {# Flash 消息 #}
+    {% for message in get_flashed_messages(with_categories=True) %}
+        <div class="alert alert-{{ message[0] }}">
+            <button type="button" class="close" data-dismiss="alert">&times;
+            </button>
+            {{ message[1] }}
+        </div>
+    {% endfor %}
+    {# 内容主体 #}
+    {% block content %}{% endblock %}
+
+    {% block footer %}
+        <footer class="page-footer pt-4 my-md-5 pt-md-4 border-top">
+            <p class="float-left">
+                <small>&copy;2019
+                    <a href="#">
+                        软件管理第一小组
+                    </a> -
+                    <a href="https://github.com/hellckt/SHMUBlog"
+                       title="项目代码">GitHub</a> -
+                    <a href="{{ url_for('main.index') }}"
+                       title="博客系统">SHMUBlog</a>
+                </small>
+            </p>
+            <p class="float-right text-muted">
+                记录你的点点滴滴。
+            </p>
+        </footer>
+    {% endblock %}
+</main>
+<div id="toast"></div>
+
+{% block scripts %}
+    <script type="text/javascript"
+            src="{{ url_for('static', filename='js/jquery-3.3.1.min.js') }}"></script>
+    <script type="text/javascript"
+            src="{{ url_for('static', filename='js/popper.min.js') }}"></script>
+    <script type="text/javascript"
+            src="{{ url_for('static', filename='js/bootstrap.min.js') }}"></script>
+    {{ moment.include_moment(local_js=url_for('static', filename='js/moment-with-locales.js')) }}
+    {{ moment.lang("zh-cn") }}
+    <script type="text/javascript"
+            src="{{ url_for('static', filename='js/script.js') }}"></script>
+{% endblock %}
+</body>
+</html>

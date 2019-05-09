@@ -1,0 +1,84 @@
+{% extends 'base.html' %}
+{% from 'bootstrap/pagination.html' import render_pagination %}
+{% from 'macros.html' import post_card, user_card with context %}
+
+{% block title %}搜索： {{ q }}{% endblock %}
+
+{% block content %}
+    <div>
+        <h1>搜索： {{ q }}</h1>
+    </div>
+    <div class="row">
+        <div class="col-md-3">
+            <div class="nav nav-pills flex-column" role="tablist"
+                 aria-orientation="vertical">
+                <a class="nav-item nav-link {% if category == 'post' %}active{% endif %}"
+                   href="{{ url_for('main.search', q=q, category='post') }}">博文</a>
+                <a class="nav-item nav-link {% if category == 'user' %}active{% endif %}"
+                   href="{{ url_for('main.search', q=q, category='user') }}">用户</a>
+                <a class="nav-item nav-link {% if category == 'category' %}active{% endif %}"
+                   href="{{ url_for('main.search', q=q, category='category') }}">博文类型</a>
+            </div>
+        </div>
+        <div class="col-md-9">
+            {% if results %}
+                <h5> 共搜索到 {{ pagination.total }} 个结果</h5>
+                <div class="row">
+                    {% for item in results %}
+                        {% if category == 'post' %}
+                            <div class="col-md-12">
+                                {{ post_card(item) }}
+                                {% if not loop.last %}
+                                    <hr>
+                                {% endif %}
+                            </div>
+                        {% elif category == 'user' %}
+                            <div class="col-md-6 mb-md-3">
+                                <div class="card mb-3 h-100">
+                                    <div class="row no-gutters">
+                                        <div class="col-md-4">
+                                            <img src="{{ url_for('main.get_avatar', filename=item.avatar_m) }}"
+                                                 class="card-img">
+                                        </div>
+                                        <div class="col-md-8">
+                                            <div class="card-body">
+                                                <h5 class="card-title">
+                                                    <a href="{{ url_for('user.index', username=item.username) }}">
+                                                        {{ item.name }}
+                                                    </a>
+                                                </h5>
+                                                {% if item.bio %}
+                                                    <p class="card-text">{{ item.bio }}</p>
+                                                {% endif %}
+                                                <p class="card-text">
+                                                    <small class="text-muted">
+                                                        最后活跃时间：{{ moment(item.last_seen).fromNow() }}
+                                                    </small>
+                                                </p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        {% else %}
+                            <div class="col-md-3 mb-md-3">
+                                <a class="list-group-item d-flex justify-content-between align-items-center"
+                                   href="#">
+                                    {{ item.name }}
+                                    <span class="badge badge-danger badge-pill">{{ item.posts|length }}</span>
+                                </a>
+                            </div>
+                        {% endif %}
+                    {% endfor %}
+                </div>
+            {% else %}
+                <h5 class="tip">没有搜索到任何结果。</h5>
+            {% endif %}
+            {% if results %}
+                <div class="row justify-content-md-center mt-md-3">
+                    {{ render_pagination(pagination, align='right') }}
+                </div>
+            {% endif %}
+        </div>
+    </div>
+{% endblock %}

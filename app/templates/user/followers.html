@@ -1,0 +1,56 @@
+{% extends 'user/base.html' %}
+{% from 'bootstrap/pagination.html' import render_pagination %}
+{% from 'macros.html' import follow_area with context %}
+
+{% block title %}{{ user.name }} 的关注者{% endblock %}
+
+{% block right_content %}
+    <h3>{{ user.name }} 的关注者列表</h3>
+    <hr>
+    <div class="row">
+        {% if follows|length != 1 %}
+            {% for follow in follows %}
+                {% if follow.follower != user %}
+                    <div class="col-md-6">
+                        <div class="card mb-3">
+                            <div class="row no-gutters">
+                                <div class="col-md-4">
+                                    <img src="{{ url_for('main.get_avatar', filename=follow.follower.avatar_m) }}"
+                                         class="card-img">
+                                </div>
+                                <div class="col-md-8">
+                                    <div class="card-body">
+                                        <h5 class="card-title">
+                                            <a href="{{ url_for('user.index', username=follow.follower.username) }}">
+                                                {{ follow.follower.name }}
+                                            </a>
+                                        </h5>
+                                        <p class="card-text">{{ follow.follower.bio }}</p>
+                                        <p class="card-text">
+                                            <small class="text-muted">
+                                                最后活跃时间：{{ moment(follow.follower.last_seen).fromNow() }}
+                                            </small>
+                                        </p>
+                                        <hr>
+                                        <div class="text-center">
+                                            {{ follow_area(follow.follower) }}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                {% endif %}
+            {% endfor %}
+        {% else %}
+            <div class="text-center">
+                <h3>没有人关注他。</h3>
+            </div>
+        {% endif %}
+    </div>
+    {% if follows|length != 1 %}
+        <div class="row justify-content-md-center mt-5">
+            {{ render_pagination(pagination, align='center') }}
+        </div>
+    {% endif %}
+{% endblock %}

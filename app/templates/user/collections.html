@@ -1,0 +1,41 @@
+{% extends 'user/base.html' %}
+{% from 'bootstrap/pagination.html' import render_pagination %}
+{% from 'macros.html' import post_card with context %}
+
+{% block title %}{{ user.name }} 的收藏{% endblock %}
+
+{% block right_content %}
+    <h3>{{ user.name }} 的收藏列表
+        {% if current_user ==user %}
+            {% if current_user.public_collections %}
+                <small class="text-muted">全部用户可见</small>
+            {% else %}
+                <small class="text-muted">仅自己可见</small>
+            {% endif %}
+        {% endif %}
+    </h3>
+    <hr>
+    {% if user.public_collections or current_user == user %}
+        {% if collects %}
+            {% for collect in collects %}
+                {{ post_card(collect.collected) }}
+                {% if not loop.last %}
+                    <hr>
+                {% endif %}
+            {% endfor %}
+        {% else %}
+            <div class="tip">
+                <h3>{{ user.name }} 并没有收藏。</h3>
+            </div>
+        {% endif %}
+    {% else %}
+        <div class="tip">
+            <h3>{{ user.name }} 隐藏了自己的收藏。</h3>
+        </div>
+    {% endif %}
+    {% if collects %}
+        <div class="page-footer mt-3">
+            {{ render_pagination(pagination, align='center') }}
+        </div>
+    {% endif %}
+{% endblock %}

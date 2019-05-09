@@ -1,0 +1,80 @@
+{% extends 'user/management/base.html' %}
+{% from 'bootstrap/form.html' import render_form %}
+{% from 'bootstrap/pagination.html' import render_pagination %}
+
+{% block title %}管理博文{% endblock %}
+
+{% block management_content %}
+    {% if posts %}
+        {% for post in posts %}
+            <div class="row mb-md-3">
+                <div class="col-md-9">
+                    <div class="row">
+                        <h5 class="text-black-50">{{ post.title }}</h5>
+                    </div>
+                    <div class="row justify-content-md-between">
+                        <div class="col-md-8 d-flex flex-md-row">
+                            类别：
+                            {% if post.categories %}
+                                {% for category in post.categories %}
+                                    <form class="inline mr-md-1" method="post"
+                                          action="{{ url_for('post.delete_post_category', post_id=post.id, category_id=category.id, next=request.full_path) }}">
+                                        <input type="hidden" name="csrf_token"
+                                               value="{{ csrf_token() }}"/>
+                                        <button type="submit"
+                                                class="btn badge badge-danger mb-1"
+                                                onclick="return confirm('确定要删除？');"
+                                                data-toggle="tooltip"
+                                                data-placement="top"
+                                                title="点击删除">
+                                            {{ category.name }}
+                                        </button>
+                                    </form>
+                                {% endfor %}
+                            {% else %}
+                                <a>未分类</a>
+                            {% endif %}
+                        </div>
+                        <div class="col-md-4">
+                            发布于：{{ moment(post.timestamp).format('LL') }}
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3 d-flex justify-content-md-end">
+                    <div class="btn-group" role="group"
+                         aria-label="">
+                        <form class="inline float-right" method="post"
+                              action="{{ url_for('post.set_comment', post_id=post.id) }}">
+                            <input type="hidden" name="csrf_token"
+                                   value="{{ csrf_token() }}">
+                            <button type="submit"
+                                    class="btn btn-link">
+                                {% if post.can_comment %}
+                                    关闭评论
+                                {% else %}
+                                    允许评论
+                                {% endif %}
+                            </button>
+                        </form>
+                        <a class="btn btn-link"
+                           href="{{ url_for('post.edit_post', post_id=post.id) }}">
+                            编辑
+                        </a>
+                        <a class="btn btn-link"
+                           href="{{ url_for('post.delete_post', post_id=post.id) }}">
+                            删除
+                        </a>
+                    </div>
+                </div>
+            </div>
+            {% if not loop.last %}
+                <hr>
+            {% endif %}
+        {% endfor %}
+        <div class="row justify-content-md-center">
+            {{ render_pagination(pagination) }}
+        </div>
+    {% else %}
+        <div class="tip"><h5>没有评论。</h5></div>
+    {% endif %}
+{% endblock %}

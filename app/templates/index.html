@@ -1,0 +1,92 @@
+{% extends 'base.html' %}
+{% from 'macros.html' import post_card with context %}
+
+{% block title %}首页{% endblock %}
+
+{% block content %}
+    <div class="row">
+        <div class="col-md-8">
+            <h3>热门收藏博文</h3>
+            <hr>
+            <div class="row mb-md-5">
+                <div class="col-md-12">
+                    {% if hot_posts %}
+                        {% for post in hot_posts %}
+                            {{ post_card(post, badge='热') }}
+                            {% if not loop.last %}
+                                <hr>
+                            {% endif %}
+                        {% endfor %}
+                    {% endif %}
+                </div>
+            </div>
+            <h3>最多阅读博文</h3>
+            <hr>
+            <div class="row">
+                <div class="col-md-12">
+                    {% if most_viewed_posts %}
+                        {% for post in most_viewed_posts %}
+                            {{ post_card(post, badge='最', badge_color='warning') }}
+                            {% if not loop.last %}
+                                <hr>
+                            {% endif %}
+                        {% endfor %}
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="row mb-md-4">
+                <div class="col-md-12">
+                    {% if hot_categories %}
+                        <h3>热门博文类别</h3>
+                        {% for category, total in hot_categories %}
+                            <a class="list-group-item d-flex justify-content-between align-items-center"
+                               href="#">
+                                {{ category.name }}
+                                <span class="badge badge-danger badge-pill">{{ total }}</span>
+                            </a>
+                        {% endfor %}
+                    {% endif %}
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-12">
+                    {% if fresh_users %}
+                        <h3>新用户</h3>
+                        {% for user in fresh_users %}
+                            <a style="text-decoration: none"
+                               href="{{ url_for('user.index', username=user.username) }}">
+                                <div class="card w-100 mb-md-3">
+                                    <div class="row no-gutters">
+                                        <div class="col-md-4">
+                                            <img src="{{ url_for('main.get_avatar', filename=user.avatar_m) }}"
+                                                 class="card-img"
+                                                 alt="{{ user.name }}">
+                                        </div>
+                                        <div class="col-md-8">
+                                            <div class="card-body">
+                                                <p class="card-title">
+                                                    {{ user.name }}
+                                                    <small class="text-muted">
+                                                        {{ user.username }}
+                                                    </small>
+                                                </p>
+                                                <p class="card-text">
+                                                    <small class="text-muted">
+                                                        最后活跃时间：
+                                                        {{ moment(user.last_seen).fromNow() }}
+                                                    </small>
+                                                </p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </a>
+                        {% endfor %}
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
